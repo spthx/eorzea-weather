@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#06141e">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="description" content="灼熱デバフ討滅戦。現在地の暑さをエオルゼアの地域と環境ギミックに換算し、宮崎市・熊谷とも同時比較する非公式ファンサイト。">
+  <title>灼熱デバフ討滅戦｜現在地の暑さをエオルゼア換算</title>
+  <link rel="preconnect" href="https://www.jma.go.jp">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="climate-heat">
+  <div class="ambient" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="duty-intro" aria-hidden="true">
+    <div class="duty-intro-ring"><i></i><i></i><i></i></div>
+    <p>NEW DUTY</p>
+    <strong>灼熱デバフ<br>討滅戦</strong>
+    <span>DUTY COMMENCED</span>
+  </div>
+
+  <main class="site-shell">
+    <header class="hero panel-gold" aria-labelledby="site-title">
+      <div class="hero-wallpaper" aria-hidden="true">
+        <img id="climate-wallpaper" src="assets/wallpapers/heavens.jpg" alt="">
+        <span class="heat-haze"></span>
+        <span class="aether-sweep"></span>
+      </div>
+      <div class="hero-rune" aria-hidden="true"><span>XIV</span></div>
+      <div class="hero-brand">
+        <p class="eyebrow">EORZEA HEAT CONVERSION</p>
+        <h1 id="site-title">エオルゼア気候観測局</h1>
+      </div>
+      <div class="hero-question">
+        <span>現在地の暑さ、</span>
+        <strong>エオルゼアで言うと？</strong>
+      </div>
+      <div class="quest-header hero-quest-header">
+        <span class="quest-mark" aria-hidden="true">!</span>
+        <div><p>ACTIVE DUTY</p><h2 id="judgement-heading">灼熱デバフ討滅戦</h2></div>
+        <span id="difficulty-badge" class="difficulty">解析中</span>
+      </div>
+      <div id="primary-judgement" class="primary-judgement hero-judgement" aria-live="polite">
+        <div class="loading-crystal" aria-hidden="true"></div>
+        <p>現在地に近い観測地点から、エオルゼア換算中…</p>
+      </div>
+      <div class="threat-meter hero-meter" aria-label="独自ギミック強度">
+        <div class="meter-label"><span>独自ギミック強度</span><strong id="threat-score">--</strong></div>
+        <div class="meter-track"><i id="threat-bar"></i></div>
+        <small>独自の演出値です。医学・防災上の指標ではありません。</small>
+      </div>
+      <div class="hero-party" aria-label="FFXIVファンキットのピクセルアート">
+        <img src="assets/fankit/job-paladin.png" alt="ナイトのピクセルアート">
+        <img src="assets/fankit/job-darkknight.png" alt="暗黒騎士のピクセルアート">
+        <img src="assets/fankit/job-blackmage.png" alt="黒魔道士のピクセルアート">
+      </div>
+      <p class="wallpaper-credit">FFXIV FAN KIT ARTWORK © SQUARE ENIX</p>
+      <div class="observation-line">
+        <span class="live-dot"></span>
+        <span id="observation-time">観測データ接続中</span>
+        <button id="refresh-button" class="icon-button" type="button" aria-label="最新観測値へ更新">↻</button>
+      </div>
+    </header>
+
+    <div class="job-marquee" aria-hidden="true">
+      <p><span>THE WEATHER PARTY IS ASSEMBLING</span><b>灼熱デバフ討滅戦・調査隊編成中</b></p>
+      <div class="job-marquee-viewport">
+        <div class="job-marquee-track">
+          <img src="assets/fankit/job-paladin.png" alt=""><img src="assets/fankit/job-darkknight.png" alt=""><img src="assets/fankit/job-blackmage.png" alt="">
+          <img src="assets/fankit/job-04.png" alt=""><img src="assets/fankit/job-05.png" alt=""><img src="assets/fankit/job-06.png" alt=""><img src="assets/fankit/job-07.png" alt=""><img src="assets/fankit/job-08.png" alt=""><img src="assets/fankit/job-09.png" alt=""><img src="assets/fankit/job-10.png" alt=""><img src="assets/fankit/job-11.png" alt=""><img src="assets/fankit/job-12.png" alt="">
+          <img src="assets/fankit/job-paladin.png" alt=""><img src="assets/fankit/job-darkknight.png" alt=""><img src="assets/fankit/job-blackmage.png" alt="">
+          <img src="assets/fankit/job-04.png" alt=""><img src="assets/fankit/job-05.png" alt=""><img src="assets/fankit/job-06.png" alt=""><img src="assets/fankit/job-07.png" alt=""><img src="assets/fankit/job-08.png" alt=""><img src="assets/fankit/job-09.png" alt=""><img src="assets/fankit/job-10.png" alt=""><img src="assets/fankit/job-11.png" alt=""><img src="assets/fankit/job-12.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <section class="privacy-banner" aria-labelledby="privacy-title">
+      <div class="privacy-lock" aria-hidden="true">⌖</div>
+      <div>
+        <p id="privacy-title">位置情報は、この端末の中だけ。</p>
+        <small>最寄りのアメダスを探す計算にだけ使用。緯度・経度を保存せず、サイトのサーバーにも送信しません。</small>
+      </div>
+      <button id="location-button" type="button">現在地で再判定</button>
+    </section>
+
+    <section class="status-section reveal-section" aria-labelledby="status-heading">
+      <div class="section-title">
+        <span>01</span>
+        <div><p>FIELD STATUS</p><h2 id="status-heading">ただいまの観測ログ</h2></div>
+      </div>
+      <article id="current-card" class="weather-card current-card panel-glass" aria-live="polite">
+        <p class="skeleton">最寄りの観測地点を探索しています…</p>
+      </article>
+    </section>
+
+    <section class="lore-section reveal-section" aria-labelledby="lore-heading">
+      <div class="section-title">
+        <span>02</span>
+        <div><p>LORE VERIFIED</p><h2 id="lore-heading">FF14設定監査ログ</h2></div>
+      </div>
+      <p class="section-note">公式の地域設定と、このサイトの推察・演出を混ぜずに表示します。</p>
+      <article id="lore-card" class="lore-card panel-gold" aria-live="polite">
+        <p class="skeleton">現在の換算先について公式資料を照合中…</p>
+      </article>
+      <div class="audit-grid">
+        <article><span class="audit-mark official">OFFICIAL</span><h3>公式として扱うもの</h3><p>地域名、公式本文に明記された気候・地理、ファンキット素材の出典。</p></article>
+        <article><span class="audit-mark inference">INFERENCE</span><h3>資料から推察するもの</h3><p>現実の気温・湿度と、各地域の説明や景観がどれほど似ているか。</p></article>
+        <article><span class="audit-mark original">ORIGINAL</span><h3>サイト独自の演出</h3><p>℃の境界、湿熱DoT、ギミック強度、演出難易度、討滅戦の文言。</p></article>
+      </div>
+    </section>
+
+    <section class="comparison-section reveal-section" aria-labelledby="comparison-heading">
+      <div class="section-wallpaper section-wallpaper-mist" aria-hidden="true"><img src="assets/wallpapers/mist.jpg" alt=""><span></span></div>
+      <div class="section-title">
+        <span>03</span>
+        <div><p>TRIAL: THREE REALMS</p><h2 id="comparison-heading">灼熱三国決戦</h2></div>
+      </div>
+      <p class="section-note">現在地 vs 宮崎県庁所在地 vs 暑さの基準・熊谷。同一観測時刻で比較。</p>
+      <div id="comparison-grid" class="comparison-grid" aria-live="polite">
+        <p class="skeleton">対戦データを同期中…</p>
+      </div>
+      <div id="battle-verdict" class="battle-verdict panel-gold"></div>
+    </section>
+
+    <section class="ranking-section reveal-section" aria-labelledby="ranking-heading">
+      <div class="section-wallpaper section-wallpaper-eternity" aria-hidden="true"><img src="assets/wallpapers/eternity.jpg" alt=""><span></span></div>
+      <div class="section-title">
+        <span>04</span>
+        <div><p>WORLD RANKING</p><h2 id="ranking-heading">本日の攻略ランキング</h2></div>
+      </div>
+      <div class="ranking-tabs" role="tablist" aria-label="ランキング種別">
+        <button type="button" role="tab" aria-selected="true" data-ranking="temperature">火属性攻撃力</button>
+        <button type="button" role="tab" aria-selected="false" data-ranking="humid">湿熱DoT</button>
+        <button type="button" role="tab" aria-selected="false" data-ranking="threat">ギミック強度</button>
+      </div>
+      <p id="ranking-note" class="section-note">全国の有効観測地点を、同一観測時刻の気温順で表示します。</p>
+      <div id="ranking-list" class="ranking-list" aria-live="polite"></div>
+    </section>
+
+    <section class="all-stations panel-glass">
+      <details id="all-stations-details">
+        <summary>
+          <span><b>全国アメダス観測ログ</b><small id="station-summary">集計中…</small></span>
+          <i aria-hidden="true">＋</i>
+        </summary>
+        <div id="all-stations-list" class="all-stations-list"></div>
+      </details>
+    </section>
+
+    <section id="error-panel" class="error-panel" hidden aria-live="assertive"></section>
+
+    <footer>
+      <p class="footer-title">エオルゼア気候観測局</p>
+      <p>本サイトは非公式・非営利のファンサイトです。エオルゼア換算と環境ギミック強度は独自の演出であり、ゲーム内の公式気温設定、天気予報、熱中症指数、警報・注意報ではありません。健康・防災に関する判断は、気象庁や自治体などの公式情報をご確認ください。</p>
+      <p>気象データ：気象庁アメダス最新観測値 ／ ファンキット画像：© SQUARE ENIX</p>
+      <nav><a href="https://www.jma.go.jp/" target="_blank" rel="noopener">気象庁</a><a href="https://jp.finalfantasyxiv.com/lodestone/special/fankit/twitter_kit/" target="_blank" rel="noopener">FFXIVファンキット</a><a href="https://support.jp.square-enix.com/rule.php?id=5381&la=0&tag=authc" target="_blank" rel="noopener">著作物利用条件</a></nav>
+      <small>FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.</small>
+    </footer>
+  </main>
+
+  <noscript><p class="noscript">このサイトは最新観測値を表示するためJavaScriptを使用します。</p></noscript>
+  <script src="js/config.js"></script>
+  <script src="js/eorzea-lore.js"></script>
+  <script src="js/locations.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/amedas.js"></script>
+  <script src="js/geolocation.js"></script>
+  <script src="js/eorzea-climate.js"></script>
+  <script src="js/rankings.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
