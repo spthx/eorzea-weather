@@ -252,15 +252,18 @@ a { color: var(--gold-bright); }
 .inference-evidence { padding-top: 12px; }
 .lore-boundary { margin: 14px -19px -19px; padding: 12px 19px; border-top: 1px solid rgba(255,154,73,.18); color: #b9a99b; background: rgba(39,20,12,.42); font-size: .62rem; line-height: 1.65; }
 .lore-boundary strong { color: #ffbd80; }
-.audit-grid { display: grid; gap: 8px; margin-top: 10px; }
-.audit-grid article { min-height: 130px; padding: 15px; border: 1px solid rgba(159,204,209,.14); border-radius: 15px; background: rgba(5,17,23,.72); }
-.audit-grid h3 { margin: 10px 0 5px; color: #f1ead8; font-size: .82rem; }
-.audit-grid p { margin: 0; color: var(--muted); font-size: .66rem; line-height: 1.65; }
-.audit-mark { display: inline-block; padding: 3px 6px; border-radius: 3px; font: 800 .5rem "Cormorant Garamond",serif; letter-spacing: .12em; }
-.audit-mark.official { color: #17231d; background: #d9bd78; }
-.audit-mark.inference { color: #052323; background: #72d8d2; }
-.audit-mark.original { color: #2b1512; background: #ff9869; }
-
+.summer-route-panel { display: grid; gap: 8px; margin-top: 14px; padding: 12px; border: 1px solid rgba(85,233,224,.18); border-radius: 14px; background: rgba(2,13,19,.56); }
+.summer-route-equation { display: grid; gap: 3px; padding-bottom: 8px; border-bottom: 1px solid rgba(217,189,120,.15); }
+.summer-route-equation span { color: var(--aether); font: 800 .53rem "Cormorant Garamond",serif; letter-spacing: .14em; }
+.summer-route-equation strong { color: #ffe8ad; font-size: .78rem; }
+.summer-route-equation p { margin: 0; color: #8ca9ad; font-size: .57rem; line-height: 1.5; }
+.summer-route-row, .summer-route-row.wet { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; align-items: stretch; }
+.summer-route-row > b { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; color: #8eaeb2; font-size: .58rem; }
+.summer-route-row > b::after { content: "暑熱換算値"; color: #5f7f84; font-size: .45rem; font-weight: 600; letter-spacing: .08em; }
+.summer-route-row > span { display: grid; place-items: center; min-height: 48px; padding: 5px 3px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; color: #8ca4a8; background: rgba(255,255,255,.025); font-size: .57rem; text-align: center; line-height: 1.25; }
+.summer-route-row > span small { color: #617f84; font-size: .42rem; }
+.summer-route-row > span.is-active { border-color: rgba(255,213,118,.7); color: #fff3c8; background: linear-gradient(145deg,rgba(173,112,27,.35),rgba(31,70,72,.36)); box-shadow: 0 0 18px rgba(255,175,63,.14); }
+.summer-route-row > span.is-active small { color: var(--aether); }
 .lore-candidate-head { display: flex; justify-content: space-between; gap: 10px; margin-top: 17px; padding-top: 14px; border-top: 1px solid rgba(217,189,120,.15); }
 .lore-candidate-head span { color: var(--gold); font-size: .62rem; font-weight: 900; letter-spacing: .08em; }
 .lore-candidate-head p { margin: 0; color: #78999e; font-size: .56rem; text-align: right; }
@@ -340,7 +343,6 @@ a { color: var(--gold-bright); }
 .rank-value small { display: block; color: var(--aether); font: 500 .55rem "Noto Sans JP",sans-serif; }
 .rank-card.is-target { box-shadow: inset 3px 0 var(--aether); }
 .rank-card.is-kumagaya { box-shadow: inset 3px 0 #ff734d; }
-.rank-card.is-miyazaki { box-shadow: inset 3px 0 #f3cd6c; }
 
 .all-stations { margin-top: 16px; border-radius: 16px; overflow: hidden; }
 .all-stations summary { min-height: 76px; padding: 15px; display: flex; justify-content: space-between; align-items: center; list-style: none; cursor: pointer; }
@@ -394,18 +396,25 @@ footer small { font-size: .57rem; }
 .hero-question { position: relative; z-index: 3; margin-top: 32px; animation: titleEnter .85s cubic-bezier(.2,.8,.2,1) both; }
 .hero-question span, .hero-question strong { display: block; text-shadow: 0 4px 25px rgba(0,0,0,.75); }
 .hero-question span { color: #fff6dc; font-size: 1.07rem; font-weight: 700; letter-spacing: .04em; }
-.hero-question strong { margin-top: 3px; color: var(--gold-bright); font-size: clamp(1.72rem, 9vw, 3.7rem); line-height: 1.15; letter-spacing: .02em; }
+.hero-question strong { margin-top: 3px; color: var(--gold-bright); font-size: clamp(1.52rem, 7.7vw, 3.7rem); line-height: 1.15; letter-spacing: .005em; white-space: nowrap; }
 .hero-quest-header { position: relative; z-index: 4; min-height: 62px; margin-top: 18px; border-top: 1px solid rgba(217,189,120,.25); border-bottom: 1px solid rgba(217,189,120,.25); animation: titleEnter .85s .12s cubic-bezier(.2,.8,.2,1) both; }
 .hero-quest-header h2 { font-size: .76rem; }
 .hero-judgement { position: relative; z-index: 4; min-height: 300px; align-items: flex-start; justify-content: center; padding: 22px 0 8px; text-align: left; animation: judgementEnter .9s .2s cubic-bezier(.16,.9,.25,1) both; }
 .hero-judgement .judgement-overline { margin-bottom: 3px; color: #fff0bd; }
-.judgement-location { display: flex; align-items: center; gap: 7px; margin: 0 0 8px; color: #c7e9e6; font-size: .69rem; font-weight: 700; }
-.judgement-location::before { content: "⌖"; color: var(--aether); font-size: 1rem; }
-.judgement-temp-line { display: flex; align-items: flex-end; gap: 10px; margin: 3px 0 14px; }
-.judgement-temp { color: #fff7df; font: 700 clamp(4.5rem, 22vw, 7rem) "Cormorant Garamond", serif; line-height: .72; letter-spacing: -.04em; text-shadow: 0 0 32px rgba(255,135,52,.35), 0 7px 24px rgba(0,0,0,.65); animation: temperaturePulse 3.2s ease-in-out infinite; }
+.judgement-location { width: 100%; margin: 0 0 8px; color: #c7e9e6; }
+.observation-toggle { width: 100%; min-height: 38px; display: grid; grid-template-columns:auto auto auto 1fr; align-items:center; gap:7px; padding:5px 8px; border:1px solid rgba(85,233,224,.16); border-radius:8px; color:#dffaf6; background:rgba(4,20,25,.46); text-align:left; cursor:pointer; }
+.observation-toggle::before { content:"⌖"; color:var(--aether); font-size:1rem; }
+.observation-toggle span { font-size:.76rem; font-weight:900; letter-spacing:.05em; }
+.observation-toggle small { justify-self:end; color:#7ca4a7; font-size:.52rem; }
+.observation-toggle i { color:var(--gold); font-style:normal; transition:transform .25s ease; }
+.observation-toggle.is-open i { transform:rotate(180deg); }
+.observation-detail { height:27px; margin-top:5px; overflow:hidden; border-left:2px solid var(--aether); border-right:2px solid var(--aether); border-radius:5px; background:rgba(0,9,13,.62); }
+.observation-detail span { display:inline-block; min-width:max-content; padding:6px 8px; color:#a9c8c9; font-size:.55rem; white-space:nowrap; animation:observationTicker 14s linear infinite; }
+.judgement-temp-line { width: 100%; min-height: 82px; display: flex; align-items: flex-end; gap: 10px; margin: 7px 0 22px; }
+.judgement-temp { color: #fff7df; font: 700 clamp(4.5rem, 22vw, 7rem) "Cormorant Garamond", serif; line-height: .82; letter-spacing: -.04em; text-shadow: 0 0 32px rgba(255,135,52,.35), 0 7px 24px rgba(0,0,0,.65); animation: temperaturePulse 3.2s ease-in-out infinite; }
 .judgement-temp small { margin-left: 3px; color: #ffe3a0; font: 800 1rem "Noto Sans JP", sans-serif; letter-spacing: 0; }
 .judgement-humidity { padding: 5px 8px; border: 1px solid rgba(85,233,224,.4); border-radius: 6px; color: #dffbf7; background: rgba(6,35,39,.58); font-size: .67rem; }
-.hero-judgement .judgement-area { max-width: 86%; margin: 0; font-size: clamp(2.3rem, 11vw, 5rem); line-height: .92; text-align: left; animation: areaGlow 3.8s ease-in-out infinite; }
+.hero-judgement .judgement-area { width: 100%; max-width: 100%; margin: 0; padding: 0 8px; font-size: clamp(2.3rem, 11vw, 5rem); line-height: 1; text-align: center; text-wrap: balance; animation: areaGlow 3.8s ease-in-out infinite; }
 .hero-judgement .judgement-type { margin-top: 10px; padding-left: 11px; border-left: 3px solid var(--aether); font-size: .91rem; }
 .hero-judgement .judgement-provenance { justify-content: flex-start; }
 .hero-judgement .judgement-tags { justify-content: flex-start; margin-top: 11px; }
@@ -432,12 +441,13 @@ footer small { font-size: .57rem; }
 .limit-gauge { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin:9px 0 5px; }
 .limit-gauge i { position:relative; height:7px; overflow:hidden; transform:skewX(-18deg); border:1px solid rgba(255,232,151,.3); background:rgba(0,0,0,.36); }
 .limit-gauge i::before { content:""; display:block; width:var(--gauge-fill,0%); height:100%; background:linear-gradient(90deg,#7fe7e0,#fbe98f); box-shadow:0 0 10px #9ef7ec; transition:width 1s ease; }
-.hero-party { right: -10px; bottom: 35px; width: 190px; height: 165px; z-index: 6; }
+.hero-party { right: -12px; bottom: 35px; width: 220px; height: 165px; z-index: 6; }
 .hero-party::before { content: "LIGHT PARTY"; position: absolute; right: 18px; bottom: 2px; z-index: 5; color: rgba(255,240,179,.7); font: 700 .53rem "Cormorant Garamond",serif; letter-spacing: .18em; }
 .hero-party img { width: 104px; animation-name: partyFloat !important; animation-duration: 4s !important; animation-timing-function: ease-in-out !important; animation-iteration-count: infinite !important; }
-.hero-party img:nth-child(1) { right: 29px; bottom: 27px; animation-delay: -.5s !important; }
-.hero-party img:nth-child(2) { right: -12px; bottom: 12px; width: 92px; animation-delay: -1.4s !important; }
-.hero-party img:nth-child(3) { right: 91px; bottom: 8px; width: 92px; animation-delay: -2.3s !important; }
+.hero-party img:nth-child(1) { right: 61px; bottom: 29px; animation-delay: -.5s !important; }
+.hero-party img:nth-child(2) { right: 8px; bottom: 10px; width: 88px; animation-delay: -1.4s !important; }
+.hero-party img:nth-child(3) { right: 130px; bottom: 7px; width: 90px; animation-delay: -2.3s !important; }
+.hero-party img:nth-child(4) { right: 72px; bottom: -3px; width: 86px; z-index: 4; animation-delay: -3.1s !important; }
 .wallpaper-credit { position: absolute; right: 14px; top: 48px; z-index: 5; margin: 0; color: rgba(255,255,255,.55); font-size: .45rem; letter-spacing: .08em; writing-mode: vertical-rl; }
 .hero .observation-line { right: 175px; }
 .climate-humid .hero-wallpaper img { filter: saturate(1.18) hue-rotate(34deg) contrast(1.05) brightness(.68); }
@@ -446,13 +456,13 @@ footer small { font-size: .57rem; }
 .climate-comfort .hero-wallpaper img { filter: saturate(.96) hue-rotate(18deg) brightness(.72); }
 
 /* Fan-kit job party */
-.job-marquee { position: relative; z-index: 3; margin: -18px 8px 22px; overflow: hidden; border: 1px solid rgba(217,189,120,.3); border-radius: 16px; background: linear-gradient(90deg, rgba(5,17,24,.98), rgba(28,35,36,.96), rgba(5,17,24,.98)); box-shadow: 0 18px 45px rgba(0,0,0,.34); }
+.job-marquee { position: relative; z-index: 2; margin: 12px 8px 22px; overflow: hidden; border: 1px solid rgba(217,189,120,.3); border-radius: 16px; background: linear-gradient(90deg, rgba(5,17,24,.98), rgba(28,35,36,.96), rgba(5,17,24,.98)); box-shadow: 0 18px 45px rgba(0,0,0,.34); isolation:isolate; }
 .job-marquee::before, .job-marquee::after { content: ""; position: absolute; top: 34px; bottom: 0; z-index: 2; width: 48px; pointer-events: none; }
 .job-marquee::before { left: 0; background: linear-gradient(90deg,#06121a,transparent); }
 .job-marquee::after { right: 0; background: linear-gradient(-90deg,#06121a,transparent); }
 .job-marquee > p { margin: 0; padding: 8px 12px 7px; display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(217,189,120,.17); color: var(--gold); font: 700 .5rem "Cormorant Garamond",serif; letter-spacing: .14em; }
 .job-marquee > p b { color: #dce9e6; font-family: "Noto Sans JP",sans-serif; font-size: .53rem; letter-spacing: .04em; }
-.job-marquee-viewport { overflow: hidden; }
+.job-marquee-viewport { overflow: hidden; padding-top:4px; }
 .job-marquee-track { width: max-content; display: flex; gap: 7px; padding: 8px 0; animation: jobMarch 28s linear infinite; }
 .job-marquee-track img { width: 58px; height: 58px; object-fit: contain; image-rendering: pixelated; border: 1px solid rgba(217,189,120,.25); border-radius: 14px; background: rgba(0,0,0,.3); filter: saturate(.9) drop-shadow(0 7px 10px rgba(0,0,0,.5)); transition: filter .2s ease, transform .2s ease; }
 .job-marquee-track img:nth-child(3n+1) { transform: translateY(-3px); }
@@ -547,6 +557,7 @@ footer small { font-size: .57rem; }
 @keyframes titleEnter { from { opacity: 0; transform: translateY(18px); filter: blur(5px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 @keyframes judgementEnter { from { opacity: 0; transform: scale(.96) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 @keyframes temperaturePulse { 50% { text-shadow: 0 0 48px rgba(255,104,38,.62), 0 7px 24px rgba(0,0,0,.65); transform: scale(1.015); } }
+@keyframes observationTicker { 0%,18% { transform:translateX(0); } 100% { transform:translateX(-100%); } }
 @keyframes areaGlow { 50% { text-shadow: 0 0 46px rgba(255,226,125,.42); } }
 @keyframes meterGlint { from { transform: translateX(-120%); } to { transform: translateX(380%); } }
 @keyframes partyFloat { 0%,100% { transform: translateY(0) rotate(-1deg); filter: drop-shadow(0 14px 16px rgba(0,0,0,.6)); } 50% { transform: translateY(-10px) rotate(1deg); filter: drop-shadow(0 20px 22px rgba(0,0,0,.75)) brightness(1.08); } }
@@ -569,6 +580,10 @@ footer small { font-size: .57rem; }
 @keyframes introTitle { from { opacity: 0; transform: scale(1.4); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
 
 @media (min-width: 680px) {
+  .summer-route-row { grid-template-columns: 36px repeat(6,minmax(0,1fr)); }
+  .summer-route-row.wet { grid-template-columns: 36px repeat(5,minmax(0,1fr)); }
+  .summer-route-row > b { grid-column: auto; display: grid; place-items: center; }
+  .summer-route-row > b::after { display: none; }
   .site-shell { padding: 24px 22px 90px; }
   .hero { min-height: 930px; padding: 28px 34px 90px; }
   .hero-question { margin-top: 40px; }
@@ -577,14 +592,14 @@ footer small { font-size: .57rem; }
   .hero-party img:nth-child(1) { width: 145px; right: 57px; }
   .hero-party img:nth-child(2), .hero-party img:nth-child(3) { width: 125px; }
   .hero-party img:nth-child(3) { right: 142px; }
+  .hero-party img:nth-child(4) { right: 91px; bottom: -5px; width: 116px; }
   .hero .observation-line { right: 260px; }
   .section-wallpaper { height: 235px; }
   .privacy-banner { grid-template-columns: auto 1fr auto; }
   .privacy-banner button { grid-column: 3; grid-row: 1 / span 2; }
   .quest-card { padding-inline: 32px; }
   .stat-grid { grid-template-columns: repeat(4,1fr); }
-  .comparison-grid { grid-template-columns: repeat(3,1fr); }
-  .audit-grid { grid-template-columns: repeat(3,1fr); }
+  .comparison-grid { grid-template-columns: repeat(2,1fr); }
   .target-cast,.status-effects { width:min(72%,560px); }
   .status-effects { grid-template-columns:repeat(4,minmax(0,1fr)); }
   .weather-party-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -606,6 +621,7 @@ footer small { font-size: .57rem; }
   .hero-party img:nth-child(1) { width: 170px; right: 70px; }
   .hero-party img:nth-child(2), .hero-party img:nth-child(3) { width: 145px; }
   .hero-party img:nth-child(3) { right: 164px; }
+  .hero-party img:nth-child(4) { right: 108px; width: 132px; }
   .lore-atlas-grid { grid-template-columns: repeat(3,1fr); }
   .current-card { display: grid; grid-template-columns: 1fr 1.25fr; gap: 30px; align-items: center; padding: 28px 34px; }
   .current-card .station-head { grid-column: 1; }
@@ -618,4 +634,6 @@ footer small { font-size: .57rem; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   .ambient { display: none; }
   .duty-intro { display: none; }
+  .observation-detail { height:auto; }
+  .observation-detail span { min-width:0; white-space:normal; transform:none !important; }
 }

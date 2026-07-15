@@ -18,14 +18,14 @@ function decorateCurrent(station) {
 
 function renderApp() {
   const current = decorateCurrent(appState.current);
-  const miyazaki = stationById(CONFIG.miyazakiStationId);
   const kumagaya = stationById(CONFIG.kumagayaStationId);
-  if (!current || !miyazaki || !kumagaya) throw new Error("比較に必要な観測地点が欠測しています。");
+  const nationalTop = appState.rankings.temperature[0];
+  if (!current || !kumagaya || !nationalTop) throw new Error("比較に必要な観測地点が欠測しています。");
   setObservation(appState.snapshot);
   renderJudgement(current);
   renderCurrentCard(current, appState.usedLocation);
-  renderComparison(current, miyazaki, kumagaya, appState.rankings);
-  renderWeatherParty(current, miyazaki, kumagaya);
+  renderComparison(current, kumagaya, appState.rankings);
+  renderWeatherParty(current, nationalTop, kumagaya);
   renderRanking(appState.rankingKind, appState.rankings, current.id);
   renderAllStations(appState.rankings);
 }
@@ -37,7 +37,7 @@ async function loadWeather({ locate = false } = {}) {
     appState.snapshot = await fetchAmedasSnapshot();
     appState.stations = enrichStations(normalizeStations(appState.snapshot));
     appState.rankings = createRankings(appState.stations);
-    appState.current = stationById(appState.current?.id) || stationById(CONFIG.miyazakiStationId) || appState.rankings.temperature[0];
+    appState.current = stationById(appState.current?.id) || appState.rankings.temperature[0];
     appState.usedLocation = false;
     renderApp();
     if (appState.snapshot.isCached) showError("最新データへ接続できなかったため、前回正常に取得した観測値を表示しています。観測時刻をご確認ください。");
@@ -65,7 +65,7 @@ async function locateAndRender() {
     renderApp();
   } catch (error) {
     appState.usedLocation = false;
-    showError("位置情報を利用できなかったため、宮崎市の観測値を現在地側として表示しています。位置情報を許可しなくても、比較とランキングは利用できます。");
+    showError("位置情報を利用できなかったため、全国最高気温の観測地点を仮表示しています。位置情報を許可しなくても、比較とランキングは利用できます。");
   } finally {
     UI.locationButton.disabled = false;
     UI.locationButton.textContent = "現在地で再判定";

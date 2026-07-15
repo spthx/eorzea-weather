@@ -23,7 +23,7 @@ function rankOf(ranking, stationId) {
 
 function featuredRanking(ranking, targetId) {
   const top = ranking.slice(0, CONFIG.rankingLimit);
-  for (const id of [targetId, CONFIG.miyazakiStationId, CONFIG.kumagayaStationId]) {
+  for (const id of [targetId, CONFIG.kumagayaStationId]) {
     const item = ranking.find(entry => entry.id === id);
     if (item && !top.some(entry => entry.id === id)) top.push(item);
   }

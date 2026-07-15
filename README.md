@@ -7,12 +7,12 @@
 ## 主な機能
 
 - 現在地に近いアメダス観測地点を端末内で選択
-- 現在地側、熊谷市を同一観測時刻で比較
+- 現在地側と熊谷市を同一観測時刻で比較
 - 全国気温・独自湿熱値・独自ギミック強度ランキング
-- 気温、湿度、風、降水を使ったエオルゼア地域換算
-- 15地域の公式設定と独自換算モデルを分離表示する「気候フィールド図鑑」
+- 25℃未満は5℃段階、夏は気温＋湿度補正−風軽減を約2ポイント刻みで分岐するエオルゼア地域換算
+- 18地域の公式設定と独自換算モデルを分離表示する「気候フィールド図鑑」
 - エオルゼア時間、ターゲット詠唱バー、ステータス効果、LIMITゲージ風の気候HUD
-- 現在地・熊谷・設定資料で構成するLIGHT PARTY風リスト
+- 現在地・全国最高気温地点・熊谷・設定資料で構成するLIGHT PARTY風リスト
 - クエストジャーナル風の設定監査導線
 
 ## 位置情報とデータ
@@ -26,6 +26,7 @@
 主な公式資料:
 
 - [新生エオルゼア 都市と地域](https://jp.finalfantasyxiv.com/a_realm_reborn/world/locations)
+- [蒼天のイシュガルド 公式サイト](https://jp.finalfantasyxiv.com/heavensward/)
 - [漆黒のヴィランズ 新エリア](https://jp.finalfantasyxiv.com/shadowbringers/story/)
 - [暁月のフィナーレ 新たな冒険の舞台](https://jp.finalfantasyxiv.com/endwalker/patch_6_0)
 - [黄金のレガシー WORLD](https://jp.finalfantasyxiv.com/dawntrail/world/)

@@ -54,7 +54,10 @@ function renderJudgement(station) {
   document.documentElement.style.setProperty("--heat-opacity", String(Math.min(.58, a.threat / 170)));
   const nextWallpaper = a.wallpaper || "assets/wallpapers/heavens.jpg";
   if (!UI.climateWallpaper.src.endsWith(nextWallpaper)) UI.climateWallpaper.src = nextWallpaper;
-  const locationName = [station.prefecture, station.municipality || station.stationName].filter(Boolean).join("・") || station.stationName;
+  const prefectureName = station.prefecture || station.stationName || "観測地点";
+  const municipalityName = station.municipality || station.stationName || "所在地情報なし";
+  const distanceText = Number.isFinite(station.distanceKm) ? `現在地から約${station.distanceKm.toFixed(1)}km` : "基準観測地点";
+  const stationDetail = `${station.prefecture || "所在地情報なし"} ${municipalityName} ／ アメダス観測地点 ${station.stationName} ／ ${distanceText}`;
   UI.judgementHeading.textContent = "灼熱デバフ討滅戦";
   UI.difficulty.textContent = `演出難易度：${a.difficulty}`;
   UI.difficulty.dataset.level = a.difficulty;
@@ -68,7 +71,10 @@ function renderJudgement(station) {
     segment.style.setProperty("--gauge-fill", `${fill}%`);
   });
   UI.judgement.innerHTML = `
-    <p class="judgement-location">${safeText(locationName)} ／ 観測地点 ${safeText(station.stationName)}</p>
+    <div class="judgement-location">
+      <button class="observation-toggle" type="button" aria-expanded="false" aria-controls="observation-detail" aria-label="${safeText(prefectureName)}の詳しい観測地点を表示"><span>${safeText(prefectureName)}</span><i aria-hidden="true">⌄</i><small>観測地点を表示</small></button>
+      <div id="observation-detail" class="observation-detail" hidden><span>${safeText(stationDetail)}</span></div>
+    </div>
     <p class="judgement-overline">YOUR REAL-WORLD HEAT IS...</p>
     <div class="judgement-temp-line"><div class="judgement-temp">${Number.isFinite(station.temperature) ? station.temperature.toFixed(1) : "--"}<small>℃</small></div><span class="judgement-humidity">湿度 ${formatInteger(station.humidity, "％")}</span></div>
     <h3 class="judgement-area">${safeText(a.area)}</h3>
@@ -76,6 +82,15 @@ function renderJudgement(station) {
     <div class="judgement-provenance"><span>${safeText(a.basisType)}</span><a href="#lore-heading">公式根拠と推察を確認</a></div>
     <div class="judgement-tags"><span>${safeText(a.attribute)}</span><span>${safeText(a.wind)}</span><span>${safeText(a.precipitation)}</span></div>
     <p class="judgement-comment">${safeText(a.comment)}</p>`;
+  const observationToggle = UI.judgement.querySelector(".observation-toggle");
+  const observationDetail = UI.judgement.querySelector(".observation-detail");
+  observationToggle?.addEventListener("click", () => {
+    const expanded = observationToggle.getAttribute("aria-expanded") === "true";
+    observationToggle.setAttribute("aria-expanded", String(!expanded));
+    observationToggle.classList.toggle("is-open", !expanded);
+    observationDetail.hidden = expanded;
+    observationToggle.querySelector("small").textContent = expanded ? "観測地点を表示" : "詳細を閉じる";
+  });
   renderStatusEffects(station);
   renderLoreAudit(station);
 }
@@ -91,10 +106,10 @@ function renderStatusEffects(station) {
   UI.statusEffects.innerHTML = effects.map(effect => `<article class="status-effect ${effect.type}"><i>${effect.icon}</i><span>${safeText(effect.label)}</span><b>${safeText(effect.value)}</b></article>`).join("");
 }
 
-function renderWeatherParty(current, miyazaki, kumagaya) {
+function renderWeatherParty(current, nationalTop, kumagaya) {
   const members = [
     { role: "T", name: "YOU / CURRENT", station: current, art: JOB_ART[0] },
-    { role: "H", name: "MIYAZAKI", station: miyazaki, art: JOB_ART[4] },
+    { role: "H", name: "NATIONAL TOP", station: nationalTop, art: JOB_ART[4] },
     { role: "D", name: "KUMAGAYA", station: kumagaya, art: JOB_ART[2] },
     { role: "D", name: "LORE ARCHIVE", station: current, art: JOB_ART[7], archive: true }
   ];
@@ -127,6 +142,15 @@ function renderLoreAudit(station) {
     <small>${safeText(entry.lore.tags.slice(0, 2).join(" / "))}</small>
     <div><i style="width:${entry.score}%"></i></div><em>演出適合 ${entry.score}%</em>
   </article>`).join("");
+  const summerRoutes = a.summerProfile ? `<div class="summer-route-panel">
+    <div class="summer-route-equation"><span>SUMMER HEAT ROUTE</span><strong>${safeText(a.decisionBand)}</strong><p>実測気温に湿度の加算と風の軽減を反映。湿度65％以上は湿潤、未満は乾熱へ進み、観測値が変われば段階も移動します。</p></div>
+    <div class="summer-route-row wet"><b>湿潤</b>${[
+      ["ヤクテル樹海","<27"], ["トライヨラ","27–28.9"], ["コザマル・カ","29–30.9"], ["サベネア島","31–36.9"], ["ピューロス帯","≥37"]
+    ].map(([name, range]) => `<span class="${a.areaName.includes(name.replace("帯", "")) ? "is-active" : ""}"><small>${range}</small>${name}</span>`).join("")}</div>
+    <div class="summer-route-row dry"><b>乾熱</b>${[
+      ["ラノシア","<27"], ["ウルダハ","27–28.9"], ["シャーローニ","29–30.9"], ["南ザナラーン","31–32.9"], ["アム・アレーン","33–34.9"], ["ピューロス帯","≥35"]
+    ].map(([name, range]) => `<span class="${a.areaName.includes(name.replace("帯", "")) ? "is-active" : ""}"><small>${range}</small>${name}</span>`).join("")}</div>
+  </div>` : "";
   UI.loreCard.innerHTML = `
     <div class="lore-card-head">
       <div><p>LORE REFERENCE</p><h3>${safeText(a.areaName)}</h3></div>
@@ -134,10 +158,11 @@ function renderLoreAudit(station) {
     </div>
     <div class="lore-evidence official-evidence"><span>公式資料で確認</span><p>${safeText(a.officialTrait)}</p>${source}</div>
     <div class="lore-route" aria-hidden="true"><i></i><b>現実の観測値と照合</b><i></i></div>
-    <div class="lore-evidence inference-evidence"><span>今回の推察</span><p>${safeText(a.conversionReason)}</p></div>
+    <div class="lore-evidence inference-evidence"><span>今回の判定・${safeText(a.decisionBand)}</span><p>${safeText(a.conversionReason)}</p></div>
+    ${summerRoutes}
     <div class="lore-candidate-head"><span>候補航路</span><p>気温・湿度・降水・風を、独自モデルで全地域と照合</p></div>
     <div class="lore-candidates">${candidates}</div>
-    <p class="lore-boundary"><strong>本サイト独自：</strong> 現実の℃境界、湿度補正、「級」の表記、ギミック強度、演出難易度。FF14に公式の摂氏換算表があるという意味ではありません。</p>`;
+    <p class="lore-boundary"><strong>本サイト独自：</strong> 25℃未満は5℃段階、25℃以上は気温＋湿度補正−風軽減の暑熱ルートで判定します。「級」、強度、難易度は公式指標ではありません。</p>`;
 }
 
 function loreEraLabel(era) {
@@ -174,7 +199,7 @@ function weatherGlyph(station) {
 
 function renderCurrentCard(station, usedLocation) {
   const locationText = station.prefecture ? `${station.prefecture}・${station.municipality || station.stationName}` : station.stationName;
-  const distance = usedLocation && Number.isFinite(station.distanceKm) ? `現在地から約${station.distanceKm.toFixed(0)}km` : "位置情報未使用：宮崎市を表示中";
+  const distance = usedLocation && Number.isFinite(station.distanceKm) ? `現在地から約${station.distanceKm.toFixed(0)}km` : "位置情報未使用：全国最高気温地点を仮表示中";
   UI.currentCard.innerHTML = `
     <img class="current-job-art" src="${jobArtForClimate(station.analysis.category)}" alt="FFXIVファンキットのジョブ・ピクセルアート">
     <div class="station-head">
@@ -195,8 +220,8 @@ function renderCurrentCard(station, usedLocation) {
 function comparisonCard(station, role, ranking) {
   const a = station.analysis;
   const tempRank = rankOf(ranking.temperature, station.id);
-  const badge = role === "YOU" ? "現在地側" : role === "MIYAZAKI" ? "県庁所在地" : "暑さ基準";
-  const roleArt = role === "YOU" ? JOB_ART[7] : role === "MIYAZAKI" ? JOB_ART[4] : JOB_ART[2];
+  const badge = role === "YOU" ? "現在地側" : "暑さ基準";
+  const roleArt = role === "YOU" ? JOB_ART[7] : JOB_ART[2];
   return `<article class="comparison-card ${role === "YOU" ? "featured" : ""}" data-rank="${tempRank || "–"}">
     <img class="combatant-avatar" src="${roleArt}" alt="FFXIVファンキットのジョブ・ピクセルアート">
     <div class="combatant-label"><span>${role}</span><b>${badge}</b></div>
@@ -207,14 +232,14 @@ function comparisonCard(station, role, ranking) {
   </article>`;
 }
 
-function renderComparison(current, miyazaki, kumagaya, rankings) {
-  UI.comparisonGrid.innerHTML = [comparisonCard(current, "YOU", rankings), comparisonCard(miyazaki, "MIYAZAKI", rankings), comparisonCard(kumagaya, "KUMAGAYA", rankings)].join("");
-  const fighters = [current, miyazaki, kumagaya];
+function renderComparison(current, kumagaya, rankings) {
+  UI.comparisonGrid.innerHTML = [comparisonCard(current, "YOU", rankings), comparisonCard(kumagaya, "KUMAGAYA", rankings)].join("");
+  const fighters = [current, kumagaya];
   const fireWinner = fighters.filter(x => Number.isFinite(x.temperature)).sort((a,b) => b.temperature - a.temperature)[0];
   const humidWinner = fighters.filter(x => Number.isFinite(x.humidScore)).sort((a,b) => b.humidScore - a.humidScore)[0];
   const threatWinner = [...fighters].sort((a,b) => b.analysis.threat - a.analysis.threat)[0];
-  const curVsMiyazaki = current.temperature - miyazaki.temperature;
-  const diffText = Math.abs(curVsMiyazaki) < .05 ? "現在地側と宮崎市は同温" : `${curVsMiyazaki > 0 ? "現在地側" : "宮崎市"}が${Math.abs(curVsMiyazaki).toFixed(1)}℃高い`;
+  const curVsKumagaya = current.temperature - kumagaya.temperature;
+  const diffText = Math.abs(curVsKumagaya) < .05 ? "現在地側と熊谷は同温" : `${curVsKumagaya > 0 ? "現在地側" : "熊谷"}が${Math.abs(curVsKumagaya).toFixed(1)}℃高い`;
   UI.battleVerdict.innerHTML = `<strong>総合判定：${safeText(threatWinner.prefecture || threatWinner.stationName)}が環境ギミック首位</strong>火属性火力は${safeText(fireWinner.prefecture || fireWinner.stationName)}、湿熱DoTは${safeText(humidWinner?.prefecture || "比較不能")}。${safeText(diffText)}。気温だけでなく、湿度・風・降水を加えた独自演出で評価しています。`;
 }
 
@@ -236,7 +261,7 @@ function renderRanking(kind, rankings, targetId) {
   UI.rankingList.innerHTML = featured.map((item, index) => {
     const rank = rankOf(ranking, item.id);
     const meta = rankingMeta(kind, item);
-    const markers = [item.id === targetId ? "is-target" : "", item.id === CONFIG.miyazakiStationId ? "is-miyazaki" : "", item.id === CONFIG.kumagayaStationId ? "is-kumagaya" : ""].join(" ");
+    const markers = [item.id === targetId ? "is-target" : "", item.id === CONFIG.kumagayaStationId ? "is-kumagaya" : ""].join(" ");
     return `<article class="rank-card ${markers}"><span class="rank-number">${rank}</span><img class="rank-job-art" src="${JOB_ART[index % JOB_ART.length]}" alt=""><div class="rank-info"><strong>${safeText(item.prefecture || "所在地情報なし")}・${safeText(item.municipality || item.stationName)}</strong><small>観測地点 ${safeText(item.stationName)} / ${safeText(meta.note)}</small></div><div class="rank-value">${safeText(meta.value)}<small>${safeText(meta.unit)}</small></div></article>`;
   }).join("");
 }

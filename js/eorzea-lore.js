@@ -13,6 +13,13 @@ const EORZEA_LORE = Object.freeze({
     wallpaper: "assets/wallpapers/endwalker-04.jpg", tags: ["寒冷地帯", "北部", "廃墟"],
     model: { temperature: 1, humidity: 55, rain: 0, wind: 5 }
   }),
+  ishgard: Object.freeze({
+    id: "ishgard", name: "皇都イシュガルド", era: "HEAVENSWARD", region: "クルザス中央高地",
+    officialTrait: "ドラゴン族との戦いを続ける皇都。剣と槍を掲げる騎士の国として公式に紹介されている。",
+    basisType: "公式本文", sourceTitle: "蒼天のイシュガルド 公式サイト", sourceUrl: "https://jp.finalfantasyxiv.com/heavensward/",
+    wallpaper: "assets/wallpapers/heavensward-01.jpg", tags: ["皇都", "騎士の国", "北方"],
+    model: { temperature: 7, humidity: 66, rain: 1, wind: 4 }
+  }),
   coerthas: Object.freeze({
     id: "coerthas", name: "クルザス中央高地", era: "HEAVENSWARD", region: "アルデナード北部",
     officialTrait: "北方のクルザスに属する地域。雪と高地の景観は公式紹介画像をもとに照合。",
@@ -48,6 +55,13 @@ const EORZEA_LORE = Object.freeze({
     wallpaper: "assets/wallpapers/endwalker-01.jpg", tags: ["海洋", "海風", "島嶼"],
     model: { temperature: 25, humidity: 65, rain: 0, wind: 4 }
   }),
+  tulliyollal: Object.freeze({
+    id: "tulliyollal", name: "トライヨラ", era: "DAWNTRAIL", region: "ヨカ・トラル",
+    officialTrait: "トラル大陸を統治する連王国の王都。多様な民が集う新大陸側の冒険拠点として扱われる。",
+    basisType: "公式地域名＋都市設定", sourceTitle: "黄金のレガシー WORLD", sourceUrl: "https://jp.finalfantasyxiv.com/dawntrail/world/",
+    wallpaper: "assets/wallpapers/heavens.jpg", tags: ["王都", "新大陸", "多民族都市"],
+    model: { temperature: 27, humidity: 74, rain: 1, wind: 3 }
+  }),
   kozamaKa: Object.freeze({
     id: "kozama-ka", name: "コザマル・カ", era: "DAWNTRAIL", region: "ヨカ・トラル南部",
     officialTrait: "密林地帯を大小の河川が流れ、大瀑布を作る水量豊かなフィールド。",
@@ -82,6 +96,13 @@ const EORZEA_LORE = Object.freeze({
     basisType: "公式本文", sourceTitle: "黄金のレガシー WORLD", sourceUrl: "https://jp.finalfantasyxiv.com/dawntrail/world/",
     wallpaper: "assets/wallpapers/heavens.jpg", tags: ["乾燥地帯", "少雨", "荒野"],
     model: { temperature: 32, humidity: 31, rain: 0, wind: 5 }
+  }),
+  uldah: Object.freeze({
+    id: "uldah", name: "砂の都ウルダハ", era: "A REALM REBORN", region: "ザナラーン",
+    officialTrait: "荒涼とした砂漠地帯ザナラーンの中央に築かれた交易都市。都市と周辺地域の対比を暑熱演出に採用。",
+    basisType: "公式本文", sourceTitle: "新生エオルゼア 都市と地域", sourceUrl: "https://jp.finalfantasyxiv.com/a_realm_reborn/world/locations",
+    wallpaper: "assets/wallpapers/shadowbringers-01.jpg", tags: ["砂の都", "交易都市", "ザナラーン"],
+    model: { temperature: 32, humidity: 52, rain: 0, wind: 2 }
   }),
   southernThanalan: Object.freeze({
     id: "southern-thanalan", name: "南ザナラーン", era: "A REALM REBORN", region: "アルデナード南部",

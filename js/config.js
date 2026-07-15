@@ -1,6 +1,5 @@
 const CONFIG = Object.freeze({
   kumagayaStationId: "43056",
-  miyazakiStationId: "87376",
   latestTimeUrl: "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt",
   stationTableUrl: "https://www.jma.go.jp/bosai/amedas/const/amedastable.json",
   mapDataBaseUrl: "https://www.jma.go.jp/bosai/amedas/data/map",

@@ -1,50 +1,101 @@
 const CLIMATE_MESSAGES = Object.freeze({
-  dry: ["日陰だけが安置です", "水分ゲージの残量を確認してください", "地面からの反射ダメージが発生しています", "これは黒魔道士の攻撃ではありません", "サゴリー砂漠の予行演習です"],
-  humid: ["日陰へ移動してもデバフが解除されません", "汗の蒸発が阻害されています", "エアコンがメインヒーラーです", "湿熱DoTがスタックしています", "回復より先に水分補給してください"],
-  still: ["空気が動いていません", "排熱フェーズに失敗しています", "扇風機のリキャストを確認してください", "無風デバフが付与されました", "散開しても涼しくなりません"],
-  wind: ["ノックバック耐性を確認してください", "洗濯物救出戦が始まります", "海風の軽減バフが有効です", "屋外家具の撤去フェーズです", "風向ギミックに注意してください"],
-  cold: ["属性値が不足しています", "足元の凍結に注意してください", "チョコボの羽まで凍りそうです", "暖房が安置です", "クルザス式の防寒装備を推奨します"],
-  comfort: ["バフ環境です。ゆっくり攻略できます", "黒衣森は本日も平常運転です", "休息日和。無理なレベル上げは不要です"]
+  dry: ["乾熱ルート進行中。直射日光と路面の照り返しを避けてください。", "汗が目立たなくても水分は失われます。移動前に補給してください。", "日陰を安置として、屋外移動を短い区間に分けてください。", "風があっても乾燥時は脱水に気づきにくいため注意が必要です。"],
+  humid: ["湿熱ルート進行中。汗が蒸発しにくく、体内の熱が逃げにくい状態です。", "日陰でも湿熱デバフは残ります。冷房のある場所で休憩してください。", "喉が渇く前の水分補給と、塩分を含む休憩を優先してください。", "気温だけでなく高い湿度が暑熱換算値を押し上げています。"],
+  still: ["無風により体表の熱が逃げにくい状態です。送風または冷房を確保してください。", "排熱を助ける風がありません。屋外滞在時間を短くしてください。", "無風デバフ発生中。扇風機は補助、室温が高い場合は冷房を優先してください。"],
+  wind: ["風は暑熱換算値を軽減しますが、強風による飛来物や転倒にも注意してください。", "風の軽減が有効です。ただし日射と水分消費は継続しています。", "風向・風速の変化で体感が変わります。安全な屋内を退避先に設定してください。"],
+  cold: ["寒冷ルート進行中。風が強い場合は体感温度がさらに低下します。", "路面凍結や降雪の有無を確認し、防寒装備を優先してください。", "観測気温が低温帯に入っています。長時間の屋外行動を避けてください。"],
+  comfort: ["大きな暑熱・寒冷補正はありません。通常ルートとして判定しています。", "観測値は比較的穏やかですが、日射や急な天候変化には注意してください。", "現在は低強度です。気温・湿度の更新でルートが変わる可能性があります。"]
 });
 
-function loreForWeather(station) {
+function summerProfileForWeather(station) {
+  const { temperature: t, humidity: h, windSpeed: w } = station;
+  const rain = Number.isFinite(station.precipitation1h)
+    ? station.precipitation1h
+    : (Number.isFinite(station.precipitation10m) ? station.precipitation10m * 6 : null);
+  if (!Number.isFinite(t) || t < 25) return { active: false };
+
+  const humidityBonus = Number.isFinite(h) ? Math.max(-1.2, Math.min(2.8, (h - 60) * .07)) : 0;
+  const windRelief = Number.isFinite(w) ? Math.max(0, w - 2) * .18 : 0;
+  const score = Math.round((t + humidityBonus - windRelief) * 10) / 10;
+  const wet = Number.isFinite(h) && h >= 65;
+  const route = wet ? "wet" : "dry";
+  const routeLabel = wet ? "湿潤ルート" : (Number.isFinite(h) ? "乾熱ルート" : "気温優先ルート");
+
+  if (Number.isFinite(rain) && rain >= 10 && Number.isFinite(w) && w >= 6) {
+    return { active: true, score, humidityBonus, windRelief, route: "storm", routeLabel: "雷雨ルート", stageLabel: "豪雨＋強風の割込条件", rangeLabel: "雨10mm以上・風6m/s以上", lore: EORZEA_LORE.heritageFound };
+  }
+  if (Number.isFinite(rain) && rain >= 3) {
+    return { active: true, score, humidityBonus, windRelief, route: "wet", routeLabel: "降水ルート", stageLabel: "まとまった雨の割込条件", rangeLabel: "雨3mm以上", lore: EORZEA_LORE.kozamaKa };
+  }
+
+  const stages = wet ? [
+    { max: 27, lore: EORZEA_LORE.yakTel, stageLabel: "湿潤I", rangeLabel: "27.0未満" },
+    { max: 29, lore: EORZEA_LORE.tulliyollal, stageLabel: "湿潤II", rangeLabel: "27.0–28.9" },
+    { max: 31, lore: EORZEA_LORE.kozamaKa, stageLabel: "湿潤III", rangeLabel: "29.0–30.9" },
+    { max: 37, lore: EORZEA_LORE.thavnair, stageLabel: "湿潤IV", rangeLabel: "31.0–36.9" },
+    { max: Infinity, lore: EORZEA_LORE.pyros, stageLabel: "属性限界", rangeLabel: "37.0以上" }
+  ] : [
+    { max: 27, lore: EORZEA_LORE.laNoscea, stageLabel: "乾燥I", rangeLabel: "27.0未満" },
+    { max: 29, lore: EORZEA_LORE.uldah, stageLabel: "乾燥II", rangeLabel: "27.0–28.9" },
+    { max: 31, lore: EORZEA_LORE.shaaloni, stageLabel: "乾燥III", rangeLabel: "29.0–30.9" },
+    { max: 33, lore: EORZEA_LORE.southernThanalan, stageLabel: "乾燥IV", rangeLabel: "31.0–32.9" },
+    { max: 35, lore: EORZEA_LORE.amhAraeng, stageLabel: "乾燥V", rangeLabel: "33.0–34.9" },
+    { max: Infinity, lore: EORZEA_LORE.pyros, stageLabel: "属性限界", rangeLabel: "35.0以上" }
+  ];
+  const selected = stages.find(stage => score < stage.max) || stages[stages.length - 1];
+  return { active: true, score, humidityBonus, windRelief, route, routeLabel, ...selected };
+}
+
+function loreForWeather(station, summerProfile = summerProfileForWeather(station)) {
   const { temperature: t, humidity: h, windSpeed: w } = station;
   const rain = Number.isFinite(station.precipitation1h)
     ? station.precipitation1h
     : (Number.isFinite(station.precipitation10m) ? station.precipitation10m * 6 : null);
   if (!Number.isFinite(t)) return null;
+  // 夏の観測値でも多くの地域名が登場するよう、5℃を起点に5℃刻みで基本地域を決める。
+  // 25℃以上は湿度と風を補正した暑熱換算値を約2ポイント刻みで分岐する。
   if (t <= -5) return EORZEA_LORE.pagos;
-  if (t <= 5) return EORZEA_LORE.garlemald;
-  if (t <= 12) return EORZEA_LORE.coerthas;
-  if (t <= 18 && Number.isFinite(w) && w >= 4) return EORZEA_LORE.orqopacha;
-  if (t <= 18) return EORZEA_LORE.labyrinthos;
+  if (t < 5) return EORZEA_LORE.garlemald;
+  if (t < 10) return EORZEA_LORE.ishgard;
+  if (t < 15) return EORZEA_LORE.coerthas;
+  if (t < 20 && Number.isFinite(w) && w >= 4) return EORZEA_LORE.orqopacha;
+  if (t < 20) return EORZEA_LORE.labyrinthos;
   if (Number.isFinite(rain) && rain >= 10 && Number.isFinite(w) && w >= 6) return EORZEA_LORE.heritageFound;
   if (Number.isFinite(rain) && rain >= 3 && t >= 20) return EORZEA_LORE.kozamaKa;
-  if (t <= 23 && Number.isFinite(h) && h >= 68) return EORZEA_LORE.blackShroud;
-  if (t <= 27 && Number.isFinite(h) && h >= 78) return EORZEA_LORE.yakTel;
-  if (t <= 27) return EORZEA_LORE.laNoscea;
-  if (Number.isFinite(h) && h >= 70) return EORZEA_LORE.thavnair;
-  if (t >= 37 && (!Number.isFinite(h) || h < 55)) return EORZEA_LORE.amhAraeng;
-  if (Number.isFinite(h) && h < 45) return EORZEA_LORE.shaaloni;
-  if (t >= 32) return EORZEA_LORE.southernThanalan;
-  return EORZEA_LORE.laNoscea;
+  if (t < 25 && Number.isFinite(h) && h >= 68) return EORZEA_LORE.blackShroud;
+  if (t < 25) return EORZEA_LORE.laNoscea;
+  return summerProfile.lore;
 }
 
-function conversionReason(station, lore) {
+function temperatureStepLabel(temperature) {
+  if (!Number.isFinite(temperature)) return "観測値なし";
+  if (temperature < 5) return "5℃未満";
+  const lower = 5 + Math.floor((temperature - 5) / 5) * 5;
+  return `${lower}–${lower + 4.9}℃帯`;
+}
+
+function conversionReason(station, lore, summerProfile) {
   if (!lore || !Number.isFinite(station.temperature)) return "観測値が足りないため換算できません。";
   const t = station.temperature.toFixed(1);
   const h = Number.isFinite(station.humidity) ? `${Math.round(station.humidity)}％` : "観測なし";
-  if (lore === EORZEA_LORE.thavnair) return `${t}℃・湿度${h}の湿った暑さを、公式に「高温多湿」とされる島へ重ねました。`;
-  if (lore === EORZEA_LORE.shaaloni) return `${t}℃・湿度${h}の乾いた暑さを、降雨の少ない乾燥地帯へ重ねました。`;
-  if (lore === EORZEA_LORE.garlemald) return `${t}℃の寒さを、公式に寒冷地帯とされる地域へ重ねました。`;
+  if (summerProfile?.active) {
+    const humidityText = summerProfile.humidityBonus >= 0
+      ? `＋ 湿度補正${summerProfile.humidityBonus.toFixed(1)}`
+      : `－ 乾燥補正${Math.abs(summerProfile.humidityBonus).toFixed(1)}`;
+    return `気温${t}℃ ${humidityText} － 風の軽減${summerProfile.windRelief.toFixed(1)} ＝ 暑熱換算${summerProfile.score.toFixed(1)}。${summerProfile.routeLabel}の「${summerProfile.stageLabel}（${summerProfile.rangeLabel}）」に入り、${lore.name}を選択しました。`;
+  }
+  const wind = Number.isFinite(station.windSpeed) ? `${station.windSpeed.toFixed(1)}m/s` : "観測なし";
+  if (lore === EORZEA_LORE.garlemald) return `${t}℃は5℃未満の寒冷帯です。寒冷地帯と公式に明記されたガレマルドを選択しました。`;
+  if (lore === EORZEA_LORE.ishgard) return `${t}℃を5℃刻みの寒冷側第1段階として、北方の皇都イシュガルドへ重ねました。`;
   if (lore === EORZEA_LORE.pagos) return `${t}℃の厳しい寒さを、公式に「氷雪の地」とされるフィールドへ重ねました。`;
-  if (lore === EORZEA_LORE.amhAraeng) return `${t}℃の極端な暑さを、公式紹介画像に見える強い砂漠景観へ重ねました。`;
-  if (lore === EORZEA_LORE.kozamaKa) return `${t}℃・湿度${h}と観測中の降水を、河川と大瀑布を抱く密林地帯へ重ねました。`;
-  if (lore === EORZEA_LORE.yakTel) return `${t}℃・湿度${h}の蒸した環境を、樹冠が日光を遮る深い森の低地へ重ねました。`;
-  if (lore === EORZEA_LORE.heritageFound) return `強い降水と風の組み合わせを、分厚い雷雲に覆われる地域へ演出的に重ねました。雷そのものを観測した判定ではありません。`;
-  if (lore === EORZEA_LORE.orqopacha) return `${t}℃・風速${Number.isFinite(station.windSpeed) ? station.windSpeed.toFixed(1) : "観測なし"}m/sを、最高峰を擁する山岳地帯へ重ねました。`;
-  if (lore === EORZEA_LORE.labyrinthos) return `${t}℃・湿度${h}の安定した環境を、エーテル学的に調整された地下空間へ重ねました。`;
-  return `${t}℃・湿度${h}を、公式の地域名と紹介景観から本サイト独自に対応づけました。`;
+  if (lore === EORZEA_LORE.coerthas) return `${t}℃は10.0–14.9℃帯です。雪と高地の景観を持つクルザス中央高地を選択しました。`;
+  if (lore === EORZEA_LORE.orqopacha) return `${t}℃は15.0–19.9℃帯、風速${wind}は4m/s以上です。高地かつ強風の分岐としてオルコ・パチャを選択しました。`;
+  if (lore === EORZEA_LORE.labyrinthos) return `${t}℃は15.0–19.9℃帯、風速${wind}は4m/s未満です。環境が調整されたラヴィリンソスを選択しました。`;
+  if (lore === EORZEA_LORE.blackShroud) return `${t}℃は20.0–24.9℃帯、湿度${h}は68％以上です。湿潤な森林分岐として黒衣森を選択しました。`;
+  if (lore === EORZEA_LORE.heritageFound) return `1時間雨量10mm以上かつ風速6m/s以上の割込条件です。雷雲に覆われるヘリテージファウンドを選択しました。`;
+  if (lore === EORZEA_LORE.kozamaKa) return `1時間雨量3mm以上の割込条件です。河川と大瀑布を抱くコザマル・カを選択しました。`;
+  if (lore === EORZEA_LORE.laNoscea) return `${t}℃は20.0–24.9℃帯、湿度${h}は森林分岐の68％未満です。海洋地域ラノシアを選択しました。`;
+  return `${t}℃・湿度${h}・風速${wind}から判定条件を満たす地域を選択しました。`;
 }
 
 function loreCandidates(station, selectedLore) {
@@ -156,7 +207,8 @@ function messageCategory(station, climate) {
 }
 
 function analyzeClimate(station) {
-  const lore = loreForWeather(station);
+  const summerProfile = summerProfileForWeather(station);
+  const lore = loreForWeather(station, summerProfile);
   const area = lore ? `${lore.name}級` : "観測値不足";
   const climate = compositeClimate(station);
   const attribute = humidityAttribute(station.humidity);
@@ -184,10 +236,13 @@ function analyzeClimate(station) {
     sourceTitle: lore?.sourceTitle || "",
     sourceUrl: lore?.sourceUrl || "",
     wallpaper: lore?.wallpaper || "assets/wallpapers/heavens.jpg",
-    conversionReason: conversionReason(station, lore),
+    conversionReason: conversionReason(station, lore, summerProfile),
     loreTags: lore?.tags || [],
     loreEra: lore?.era || "",
     loreRegion: lore?.region || "",
+    temperatureStep: temperatureStepLabel(station.temperature),
+    decisionBand: summerProfile.active ? `暑熱換算 ${summerProfile.score.toFixed(1)} / ${summerProfile.routeLabel}` : temperatureStepLabel(station.temperature),
+    summerProfile: summerProfile.active ? summerProfile : null,
     candidates
   };
 }
