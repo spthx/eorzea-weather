@@ -25,6 +25,7 @@ function renderApp() {
   renderJudgement(current);
   renderCurrentCard(current, appState.usedLocation);
   renderComparison(current, miyazaki, kumagaya, appState.rankings);
+  renderWeatherParty(current, miyazaki, kumagaya);
   renderRanking(appState.rankingKind, appState.rankings, current.id);
   renderAllStations(appState.rankings);
 }
@@ -100,4 +101,6 @@ if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-mot
 }
 
 renderLoreAtlas();
+updateEorzeaTime();
+setInterval(updateEorzeaTime, 1000);
 loadWeather({ locate: true });

@@ -21,6 +21,14 @@
   </div>
 
   <main class="site-shell">
+    <nav class="hud-nav" aria-label="エオルゼア気候観測局メニュー">
+      <a href="#site-title"><span>MAIN</span><b>討滅戦</b></a>
+      <a href="#status-heading"><span>STATUS</span><b>観測</b></a>
+      <a href="#lore-heading"><span>JOURNAL</span><b>設定</b></a>
+      <a href="#comparison-heading"><span>TRIAL</span><b>比較</b></a>
+      <a href="#ranking-heading"><span>RANK</span><b>順位</b></a>
+      <div class="eorzea-clock"><small>ET</small><strong id="eorzea-time">--:--</strong><i aria-hidden="true"></i></div>
+    </nav>
     <header class="hero panel-gold" aria-labelledby="site-title">
       <div class="hero-wallpaper" aria-hidden="true">
         <img id="climate-wallpaper" src="assets/wallpapers/heavens.jpg" alt="">
@@ -45,9 +53,15 @@
         <div class="loading-crystal" aria-hidden="true"></div>
         <p>現在地に近い観測地点から、エオルゼア換算中…</p>
       </div>
+      <div class="target-cast" aria-label="現在の環境ギミック">
+        <div class="target-cast-head"><span>TARGET INFO</span><strong id="target-cast-name">気候解析中</strong><small id="target-cast-value">--%</small></div>
+        <div class="target-cast-track"><i id="target-cast-bar"></i><b></b></div>
+      </div>
+      <div id="status-effects" class="status-effects" aria-label="現在の環境ステータス効果"></div>
       <div class="threat-meter hero-meter" aria-label="独自ギミック強度">
         <div class="meter-label"><span>独自ギミック強度</span><strong id="threat-score">--</strong></div>
         <div class="meter-track"><i id="threat-bar"></i></div>
+        <div id="limit-gauge" class="limit-gauge" aria-label="LIMIT BREAK風ギミックゲージ"><i></i><i></i><i></i></div>
         <small>独自の演出値です。医学・防災上の指標ではありません。</small>
       </div>
       <div class="hero-party" aria-label="FFXIVファンキットのピクセルアート">
@@ -84,6 +98,11 @@
       <button id="location-button" type="button">現在地で再判定</button>
     </section>
 
+    <section class="weather-party-hud panel-glass" aria-labelledby="party-hud-heading">
+      <div class="party-hud-head"><span>LIGHT PARTY</span><h2 id="party-hud-heading">WEATHER DUTY PARTY</h2><small>4 / 4</small></div>
+      <div id="weather-party-list" class="weather-party-list"><p class="skeleton">パーティメンバーを招集中…</p></div>
+    </section>
+
     <section class="status-section reveal-section" aria-labelledby="status-heading">
       <div class="section-title">
         <span>01</span>
@@ -100,6 +119,11 @@
         <div><p>LORE VERIFIED</p><h2 id="lore-heading">FF14設定監査ログ</h2></div>
       </div>
       <p class="section-note">公式の地域設定と、このサイトの推察・演出を混ぜずに表示します。</p>
+      <div class="quest-journal panel-gold">
+        <div class="quest-journal-mark" aria-hidden="true">!</div>
+        <div><p>LEVEL SYNC 100</p><h3>気候フィールド調査任務</h3><ul><li class="is-complete">公式本文から地域特性を確認</li><li class="is-complete">現在地のアメダス観測値と照合</li><li>候補航路から換算先を決定</li></ul></div>
+        <span>IN PROGRESS</span>
+      </div>
       <article id="lore-card" class="lore-card panel-gold" aria-live="polite">
         <p class="skeleton">現在の換算先について公式資料を照合中…</p>
       </article>

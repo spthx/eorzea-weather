@@ -8,6 +8,13 @@ const UI = {
   difficulty: document.getElementById("difficulty-badge"),
   threatScore: document.getElementById("threat-score"),
   threatBar: document.getElementById("threat-bar"),
+  targetCastName: document.getElementById("target-cast-name"),
+  targetCastValue: document.getElementById("target-cast-value"),
+  targetCastBar: document.getElementById("target-cast-bar"),
+  statusEffects: document.getElementById("status-effects"),
+  limitGauge: document.getElementById("limit-gauge"),
+  eorzeaTime: document.getElementById("eorzea-time"),
+  weatherPartyList: document.getElementById("weather-party-list"),
   currentCard: document.getElementById("current-card"),
   loreCard: document.getElementById("lore-card"),
   loreAtlasGrid: document.getElementById("lore-atlas-grid"),
@@ -53,6 +60,13 @@ function renderJudgement(station) {
   UI.difficulty.dataset.level = a.difficulty;
   UI.threatScore.textContent = a.threat;
   requestAnimationFrame(() => { UI.threatBar.style.width = `${a.threat}%`; });
+  UI.targetCastName.textContent = a.climate.replace("（独自判定）", "");
+  UI.targetCastValue.textContent = `${a.threat}%`;
+  requestAnimationFrame(() => { UI.targetCastBar.style.width = `${Math.max(8, a.threat)}%`; });
+  [...UI.limitGauge.children].forEach((segment, index) => {
+    const fill = Math.max(0, Math.min(100, (a.threat - index * 33.34) * 3));
+    segment.style.setProperty("--gauge-fill", `${fill}%`);
+  });
   UI.judgement.innerHTML = `
     <p class="judgement-location">${safeText(locationName)} ／ 観測地点 ${safeText(station.stationName)}</p>
     <p class="judgement-overline">YOUR REAL-WORLD HEAT IS...</p>
@@ -62,7 +76,44 @@ function renderJudgement(station) {
     <div class="judgement-provenance"><span>${safeText(a.basisType)}</span><a href="#lore-heading">公式根拠と推察を確認</a></div>
     <div class="judgement-tags"><span>${safeText(a.attribute)}</span><span>${safeText(a.wind)}</span><span>${safeText(a.precipitation)}</span></div>
     <p class="judgement-comment">${safeText(a.comment)}</p>`;
+  renderStatusEffects(station);
   renderLoreAudit(station);
+}
+
+function renderStatusEffects(station) {
+  const a = station.analysis;
+  const effects = [
+    { icon: station.temperature >= 28 ? "♨" : station.temperature <= 5 ? "❄" : "✦", label: station.temperature >= 28 ? "灼熱" : station.temperature <= 5 ? "寒冷" : "平常", value: formatValue(station.temperature, "℃"), type: station.temperature >= 28 || station.temperature <= 5 ? "debuff" : "buff" },
+    { icon: "◆", label: a.attribute.replace(/属性.*/, "属性"), value: formatInteger(station.humidity, "％"), type: Number.isFinite(station.humidity) && station.humidity >= 70 ? "debuff" : "buff" },
+    { icon: "≋", label: a.wind, value: formatValue(station.windSpeed, "m/s"), type: Number.isFinite(station.windSpeed) && station.windSpeed >= 6 ? "debuff" : "buff" },
+    { icon: "☂", label: a.precipitation, value: Number.isFinite(station.precipitation1h) ? `${station.precipitation1h.toFixed(1)}mm` : "LIVE", type: Number.isFinite(station.precipitation1h) && station.precipitation1h > 0 ? "debuff" : "buff" }
+  ];
+  UI.statusEffects.innerHTML = effects.map(effect => `<article class="status-effect ${effect.type}"><i>${effect.icon}</i><span>${safeText(effect.label)}</span><b>${safeText(effect.value)}</b></article>`).join("");
+}
+
+function renderWeatherParty(current, miyazaki, kumagaya) {
+  const members = [
+    { role: "T", name: "YOU / CURRENT", station: current, art: JOB_ART[0] },
+    { role: "H", name: "MIYAZAKI", station: miyazaki, art: JOB_ART[4] },
+    { role: "D", name: "KUMAGAYA", station: kumagaya, art: JOB_ART[2] },
+    { role: "D", name: "LORE ARCHIVE", station: current, art: JOB_ART[7], archive: true }
+  ];
+  UI.weatherPartyList.innerHTML = members.map(member => {
+    const hp = member.archive ? 100 : Math.max(8, 100 - member.station.analysis.threat);
+    const mp = member.archive ? 100 : (Number.isFinite(member.station.humidity) ? Math.min(100, member.station.humidity) : 0);
+    const detail = member.archive ? `${EORZEA_LORE_LIST.length} REGIONS / SETTING CHECKED` : `${member.station.temperature.toFixed(1)}℃ / ${member.station.analysis.areaName}`;
+    return `<article class="party-member ${member === members[0] ? "is-you" : ""}">
+      <span class="party-role role-${member.role.toLowerCase()}">${member.role}</span><img src="${member.art}" alt=""><div class="party-member-info"><strong>${safeText(member.name)}</strong><small>${safeText(detail)}</small><div class="party-bars"><i style="--party-hp:${hp}%"></i><b style="--party-mp:${mp}%"></b></div></div><em>${hp}%</em>
+    </article>`;
+  }).join("");
+}
+
+function updateEorzeaTime() {
+  if (!UI.eorzeaTime) return;
+  const eorzeaSeconds = Math.floor(Date.now() / 1000 * (3600 / 175)) % 86400;
+  const hours = Math.floor(eorzeaSeconds / 3600);
+  const minutes = Math.floor((eorzeaSeconds % 3600) / 60);
+  UI.eorzeaTime.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 }
 
 function renderLoreAudit(station) {
