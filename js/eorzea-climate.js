@@ -8,18 +8,26 @@ const CLIMATE_MESSAGES = Object.freeze({
 });
 
 function loreForWeather(station) {
-  const { temperature: t, humidity: h } = station;
+  const { temperature: t, humidity: h, windSpeed: w } = station;
+  const rain = Number.isFinite(station.precipitation1h)
+    ? station.precipitation1h
+    : (Number.isFinite(station.precipitation10m) ? station.precipitation10m * 6 : null);
   if (!Number.isFinite(t)) return null;
   if (t <= -5) return EORZEA_LORE.pagos;
   if (t <= 5) return EORZEA_LORE.garlemald;
-  if (t <= 13) return EORZEA_LORE.coerthas;
-  if (t <= 21) return EORZEA_LORE.blackShroud;
-  if (t <= 26) return EORZEA_LORE.costa;
+  if (t <= 12) return EORZEA_LORE.coerthas;
+  if (t <= 18 && Number.isFinite(w) && w >= 4) return EORZEA_LORE.orqopacha;
+  if (t <= 18) return EORZEA_LORE.labyrinthos;
+  if (Number.isFinite(rain) && rain >= 10 && Number.isFinite(w) && w >= 6) return EORZEA_LORE.heritageFound;
+  if (Number.isFinite(rain) && rain >= 3 && t >= 20) return EORZEA_LORE.kozamaKa;
+  if (t <= 23 && Number.isFinite(h) && h >= 68) return EORZEA_LORE.blackShroud;
+  if (t <= 27 && Number.isFinite(h) && h >= 78) return EORZEA_LORE.yakTel;
+  if (t <= 27) return EORZEA_LORE.laNoscea;
   if (Number.isFinite(h) && h >= 70) return EORZEA_LORE.thavnair;
-  if (Number.isFinite(h) && h < 50) return t >= 36 ? EORZEA_LORE.amhAraeng : EORZEA_LORE.shaaloni;
-  if (t >= 36) return EORZEA_LORE.amhAraeng;
+  if (t >= 37 && (!Number.isFinite(h) || h < 55)) return EORZEA_LORE.amhAraeng;
+  if (Number.isFinite(h) && h < 45) return EORZEA_LORE.shaaloni;
   if (t >= 32) return EORZEA_LORE.southernThanalan;
-  return EORZEA_LORE.costa;
+  return EORZEA_LORE.laNoscea;
 }
 
 function conversionReason(station, lore) {
@@ -31,7 +39,38 @@ function conversionReason(station, lore) {
   if (lore === EORZEA_LORE.garlemald) return `${t}℃の寒さを、公式に寒冷地帯とされる地域へ重ねました。`;
   if (lore === EORZEA_LORE.pagos) return `${t}℃の厳しい寒さを、公式に「氷雪の地」とされるフィールドへ重ねました。`;
   if (lore === EORZEA_LORE.amhAraeng) return `${t}℃の極端な暑さを、公式紹介画像に見える強い砂漠景観へ重ねました。`;
+  if (lore === EORZEA_LORE.kozamaKa) return `${t}℃・湿度${h}と観測中の降水を、河川と大瀑布を抱く密林地帯へ重ねました。`;
+  if (lore === EORZEA_LORE.yakTel) return `${t}℃・湿度${h}の蒸した環境を、樹冠が日光を遮る深い森の低地へ重ねました。`;
+  if (lore === EORZEA_LORE.heritageFound) return `強い降水と風の組み合わせを、分厚い雷雲に覆われる地域へ演出的に重ねました。雷そのものを観測した判定ではありません。`;
+  if (lore === EORZEA_LORE.orqopacha) return `${t}℃・風速${Number.isFinite(station.windSpeed) ? station.windSpeed.toFixed(1) : "観測なし"}m/sを、最高峰を擁する山岳地帯へ重ねました。`;
+  if (lore === EORZEA_LORE.labyrinthos) return `${t}℃・湿度${h}の安定した環境を、エーテル学的に調整された地下空間へ重ねました。`;
   return `${t}℃・湿度${h}を、公式の地域名と紹介景観から本サイト独自に対応づけました。`;
+}
+
+function loreCandidates(station, selectedLore) {
+  const observed = {
+    temperature: station.temperature,
+    humidity: station.humidity,
+    rain: Number.isFinite(station.precipitation1h)
+      ? station.precipitation1h
+      : (Number.isFinite(station.precipitation10m) ? station.precipitation10m * 6 : null),
+    wind: station.windSpeed
+  };
+  const weights = { temperature: .52, humidity: .25, rain: .13, wind: .10 };
+  const tolerances = { temperature: 18, humidity: 55, rain: 25, wind: 12 };
+  return EORZEA_LORE_LIST.map(lore => {
+    let score = 0;
+    let usedWeight = 0;
+    Object.keys(weights).forEach(key => {
+      if (!Number.isFinite(observed[key])) return;
+      const closeness = Math.max(0, 1 - Math.abs(observed[key] - lore.model[key]) / tolerances[key]);
+      score += closeness * weights[key];
+      usedWeight += weights[key];
+    });
+    const normalized = usedWeight ? score / usedWeight : 0;
+    const selectedBoost = lore === selectedLore ? .16 : 0;
+    return { lore, score: Math.min(99, Math.round((normalized + selectedBoost) * 100)) };
+  }).sort((a, b) => b.score - a.score).slice(0, 3);
 }
 
 function humidityAttribute(humidity) {
@@ -128,6 +167,7 @@ function analyzeClimate(station) {
   const category = messageCategory(station, climate);
   const messages = CLIMATE_MESSAGES[category];
   const comment = messages[deterministicIndex(`${station.id}:${station.observationTime}:${climate}`, messages.length)];
+  const candidates = loreCandidates(station, lore);
   return {
     area,
     areaName: lore?.name || "観測値不足",
@@ -144,7 +184,11 @@ function analyzeClimate(station) {
     sourceTitle: lore?.sourceTitle || "",
     sourceUrl: lore?.sourceUrl || "",
     wallpaper: lore?.wallpaper || "assets/wallpapers/heavens.jpg",
-    conversionReason: conversionReason(station, lore)
+    conversionReason: conversionReason(station, lore),
+    loreTags: lore?.tags || [],
+    loreEra: lore?.era || "",
+    loreRegion: lore?.region || "",
+    candidates
   };
 }
 

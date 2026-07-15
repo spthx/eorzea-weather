@@ -10,6 +10,7 @@ const UI = {
   threatBar: document.getElementById("threat-bar"),
   currentCard: document.getElementById("current-card"),
   loreCard: document.getElementById("lore-card"),
+  loreAtlasGrid: document.getElementById("lore-atlas-grid"),
   comparisonGrid: document.getElementById("comparison-grid"),
   battleVerdict: document.getElementById("battle-verdict"),
   rankingList: document.getElementById("ranking-list"),
@@ -69,6 +70,12 @@ function renderLoreAudit(station) {
   const source = a.sourceUrl
     ? `<a class="lore-source-link" href="${a.sourceUrl}" target="_blank" rel="noopener">${safeText(a.sourceTitle)} ↗</a>`
     : "";
+  const candidates = (a.candidates || []).map((entry, index) => `<article class="lore-candidate ${index === 0 ? "is-primary" : ""}">
+    <span>${index === 0 ? "MAIN ROUTE" : `ALT ${index}`}</span>
+    <strong>${safeText(entry.lore.name)}</strong>
+    <small>${safeText(entry.lore.tags.slice(0, 2).join(" / "))}</small>
+    <div><i style="width:${entry.score}%"></i></div><em>演出適合 ${entry.score}%</em>
+  </article>`).join("");
   UI.loreCard.innerHTML = `
     <div class="lore-card-head">
       <div><p>LORE REFERENCE</p><h3>${safeText(a.areaName)}</h3></div>
@@ -77,7 +84,33 @@ function renderLoreAudit(station) {
     <div class="lore-evidence official-evidence"><span>公式資料で確認</span><p>${safeText(a.officialTrait)}</p>${source}</div>
     <div class="lore-route" aria-hidden="true"><i></i><b>現実の観測値と照合</b><i></i></div>
     <div class="lore-evidence inference-evidence"><span>今回の推察</span><p>${safeText(a.conversionReason)}</p></div>
+    <div class="lore-candidate-head"><span>候補航路</span><p>気温・湿度・降水・風を、独自モデルで全地域と照合</p></div>
+    <div class="lore-candidates">${candidates}</div>
     <p class="lore-boundary"><strong>本サイト独自：</strong> 現実の℃境界、湿度補正、「級」の表記、ギミック強度、演出難易度。FF14に公式の摂氏換算表があるという意味ではありません。</p>`;
+}
+
+function loreEraLabel(era) {
+  return ({
+    "A REALM REBORN": "新生エオルゼア", HEAVENSWARD: "蒼天のイシュガルド", STORMBLOOD: "紅蓮のリベレーター",
+    SHADOWBRINGERS: "漆黒のヴィランズ", ENDWALKER: "暁月のフィナーレ", DAWNTRAIL: "黄金のレガシー"
+  })[era] || era;
+}
+
+function renderLoreAtlas(era = "ALL") {
+  if (!UI.loreAtlasGrid) return;
+  const loreList = era === "ALL" ? EORZEA_LORE_LIST : EORZEA_LORE_LIST.filter(lore => lore.era === era);
+  UI.loreAtlasGrid.innerHTML = loreList.map((lore, index) => `<article class="lore-atlas-card" style="--card-delay:${index * 45}ms">
+    <div class="lore-atlas-art"><img src="${lore.wallpaper}" alt=""><span></span><b>${safeText(lore.era)}</b></div>
+    <div class="lore-atlas-copy">
+      <p>${safeText(loreEraLabel(lore.era))}</p>
+      <h4>${safeText(lore.name)}</h4>
+      <small class="lore-atlas-region">${safeText(lore.region)}</small>
+      <div class="lore-atlas-tags">${lore.tags.map(tag => `<span>${safeText(tag)}</span>`).join("")}</div>
+      <p class="lore-atlas-trait">${safeText(lore.officialTrait)}</p>
+      <div class="lore-atlas-model"><span>独自換算モデル</span><b>${lore.model.temperature}℃</b><b>湿度${lore.model.humidity}％</b><b>風${lore.model.wind}m/s</b></div>
+      <a href="${lore.sourceUrl}" target="_blank" rel="noopener">${safeText(lore.sourceTitle)} ↗</a>
+    </div>
+  </article>`).join("");
 }
 
 function weatherGlyph(station) {

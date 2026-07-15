@@ -79,6 +79,11 @@ document.querySelectorAll("[data-ranking]").forEach(button => button.addEventLis
   if (appState.rankings && appState.current) renderRanking(appState.rankingKind, appState.rankings, appState.current.id);
 }));
 
+document.querySelectorAll("[data-lore-era]").forEach(button => button.addEventListener("click", () => {
+  document.querySelectorAll("[data-lore-era]").forEach(item => item.classList.toggle("is-active", item === button));
+  renderLoreAtlas(button.dataset.loreEra);
+}));
+
 document.documentElement.classList.add("motion-ready");
 if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
   const revealObserver = new IntersectionObserver(entries => {
@@ -88,10 +93,11 @@ if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-mot
         revealObserver.unobserve(entry.target);
       }
     });
-  }, { threshold: .12 });
+  }, { threshold: .01, rootMargin: "0px 0px -8% 0px" });
   document.querySelectorAll(".reveal-section").forEach(section => revealObserver.observe(section));
 } else {
   document.querySelectorAll(".reveal-section").forEach(section => section.classList.add("is-visible"));
 }
 
+renderLoreAtlas();
 loadWeather({ locate: true });
