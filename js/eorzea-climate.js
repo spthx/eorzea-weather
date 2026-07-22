@@ -196,6 +196,46 @@ function difficultyForThreat(score) {
   return "絶";
 }
 
+const DUTY_WALLPAPERS = Object.freeze({
+  arr: "assets/wallpapers/a-realm-reborn.jpg",
+  heavensward: "assets/wallpapers/heavensward-01.jpg",
+  stormblood: "assets/wallpapers/stormblood-fankit.jpg",
+  shadowbringers: "assets/wallpapers/shadowbringers-01.jpg",
+  endwalker: "assets/wallpapers/endwalker-04.jpg",
+  dawntrail: "assets/wallpapers/dawntrail-fankit.jpg"
+});
+
+const HEAT_DUTIES = Object.freeze([
+  Object.freeze({ max: 31, name: "赤熱のブッシュファイア", tier: "火属性予兆", code: "BUSHFIRE", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "魔獣領域 ハラタリ修練所", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/98319325b98/", briefing: "31℃未満でも赤熱のブッシュファイア級。日陰を選び、早めに水分を補給してください。" }),
+  Object.freeze({ max: 31.5, range: "31.0–31.4℃", name: "赤熱のブッシュファイア", tier: "ダンジョン", code: "BUSHFIRE", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "魔獣領域 ハラタリ修練所", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/98319325b98/", briefing: "31℃台前半、ハラタリの赤熱のブッシュファイア級。屋外行動を短く区切ってください。" }),
+  Object.freeze({ max: 32, range: "31.5–31.9℃", name: "イフリート", tier: "討伐戦", code: "HELLFIRE", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "イフリート討伐戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/c3e6020e9e6/", briefing: "31℃台後半、焔神イフリートの『地獄の火炎』級。直射日光を避けてください。" }),
+  Object.freeze({ max: 32.5, range: "32.0–32.4℃", name: "究極の焔神イフリート", tier: "極", code: "EXTREME IFRIT", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "極イフリート討滅戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/6af1a94ccca/", briefing: "32℃台前半、究極の力に覚醒した焔神級。水分と塩分を整えてください。" }),
+  Object.freeze({ max: 33, range: "32.5–32.9℃", name: "インフェルノ", tier: "ダンジョン", code: "INFERNO", era: "紅蓮のリベレーター", eraCode: "stormblood", wallpaper: DUTY_WALLPAPERS.stormblood, sourceTitle: "巨砲要塞 カストルム・アバニア", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/topics/detail/070a1dc3c34e11d49e5ee169f002b1a4ba6849a1", briefing: "32℃台後半、カストルム・アバニアのインフェルノ級。冷房下で休憩してください。" }),
+  Object.freeze({ max: 33.5, range: "33.0–33.4℃", name: "鬼神ズルワーン", tier: "討滅戦", code: "ZURVAN", era: "蒼天のイシュガルド", eraCode: "heavensward", wallpaper: DUTY_WALLPAPERS.heavensward, sourceTitle: "鬼神ズルワーン討滅戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/8ff3c52798c/", briefing: "33℃台前半、炎と氷が交錯する鬼神ズルワーン級。屋外の滞在時間を削ってください。" }),
+  Object.freeze({ max: 34, range: "33.5–33.9℃", name: "魔人ベリアス", tier: "アライアンス", code: "BELIAS", era: "紅蓮のリベレーター", eraCode: "stormblood", wallpaper: DUTY_WALLPAPERS.stormblood, sourceTitle: "封じられた聖塔 リドルアナ", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/390fb10fd68/", briefing: "33℃台後半、ファイジャを操る魔人ベリアス級。冷房下で定期的に休憩してください。" }),
+  Object.freeze({ max: 34.5, range: "34.0–34.4℃", name: "朱雀", tier: "征魂戦", code: "SUZAKU", era: "紅蓮のリベレーター", eraCode: "stormblood", wallpaper: DUTY_WALLPAPERS.stormblood, sourceTitle: "朱雀征魂戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/ea0f6440546/", briefing: "34℃台前半、情念の炎を燃え上がらせる朱雀級。無理な連戦を避けてください。" }),
+  Object.freeze({ max: 35, range: "34.5–34.9℃", name: "極・朱雀", tier: "極", code: "EXTREME SUZAKU", era: "紅蓮のリベレーター", eraCode: "stormblood", wallpaper: DUTY_WALLPAPERS.stormblood, sourceTitle: "極朱雀征魂戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/628e9a05d34/", briefing: "34℃台後半、溶岩たぎる灼熱の虚を舞う極朱雀級。日射を避けて退避してください。" }),
+  Object.freeze({ max: 35.5, range: "35.0–35.4℃", name: "ペンテシレイア", tier: "エウレカ", code: "PYROS NM", era: "紅蓮のリベレーター", eraCode: "stormblood", wallpaper: DUTY_WALLPAPERS.stormblood, sourceTitle: "禁断の地 エウレカ：ピューロス編", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/topics/detail/cc68719ec764e6577d5a9495908148b60618b6ae", briefing: "35℃台前半、消えることなき種火を宿すペンテシレイア級。屋外活動を再判断してください。" }),
+  Object.freeze({ max: 36, range: "35.5–35.9℃", name: "ラクタパクシャ", tier: "レイド", code: "IFRIT × GARUDA", era: "漆黒のヴィランズ", eraCode: "shadowbringers", wallpaper: DUTY_WALLPAPERS.shadowbringers, sourceTitle: "希望の園エデン：共鳴編2", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/cdc9ff33eff/", briefing: "35℃台後半、焔神と嵐神が一体化した炎風級。涼しい場所へ移動してください。" }),
+  Object.freeze({ max: 36.5, range: "36.0–36.4℃", name: "日神アーゼマ", tier: "アライアンス", code: "AZEYMA", era: "暁月のフィナーレ", eraCode: "endwalker", wallpaper: DUTY_WALLPAPERS.endwalker, sourceTitle: "輝ける神域 アグライア", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/topics/detail/b85ab23e734c5f65640c8bea29bc104fa5823a6f", briefing: "36℃台前半、紅炎と陽炎を従える日神アーゼマ級。屋外攻略を中止してください。" }),
+  Object.freeze({ max: 37, range: "36.5–36.9℃", name: "商神ナルザル", tier: "アライアンス", code: "NALD'THAL", era: "暁月のフィナーレ", eraCode: "endwalker", wallpaper: DUTY_WALLPAPERS.endwalker, sourceTitle: "輝ける神域 アグライア", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/topics/detail/b85ab23e734c5f65640c8bea29bc104fa5823a6f", briefing: "36℃台後半、炎天の浄火を放つ商神ナルザル級。安全な屋内へ退避してください。" }),
+  Object.freeze({ max: 37.5, range: "37.0–37.4℃", name: "ヴァリガルマンダ", tier: "討滅戦", code: "TURAL VIDRAAL", era: "黄金のレガシー", eraCode: "dawntrail", wallpaper: DUTY_WALLPAPERS.dawntrail, sourceTitle: "ヴァリガルマンダ討滅戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/2fc80be63e2/", briefing: "37℃台前半、火・氷・雷を振るう『生ける天災』級。不要不急の外出を避けてください。" }),
+  Object.freeze({ max: 38, range: "37.5–37.9℃", name: "火の妖異ルビカンテ", tier: "討滅戦", code: "RUBICANTE", era: "暁月のフィナーレ", eraCode: "endwalker", wallpaper: DUTY_WALLPAPERS.endwalker, sourceTitle: "ルビカンテ討滅戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/topics/detail/247e132e8ae819b6e141b55c4d8545dc0cb2517f/", briefing: "37℃台後半、異界の火を操るルビカンテ級。屋外に留まらないでください。" }),
+  Object.freeze({ max: 38.5, range: "38.0–38.4℃", name: "極・火の妖異ルビカンテ", tier: "極", code: "EXTREME RUBICANTE", era: "暁月のフィナーレ", eraCode: "endwalker", wallpaper: DUTY_WALLPAPERS.endwalker, sourceTitle: "極ルビカンテ討滅戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/0eb5dd38d5a/", briefing: "38℃台前半、天竜のエーテルをさらに喰らった極ルビカンテ級。冷房のある場所で待機してください。" }),
+  Object.freeze({ max: 39, range: "38.5–38.9℃", name: "零式・フェネクス", tier: "零式", code: "SAVAGE PHOINIX", era: "暁月のフィナーレ", eraCode: "endwalker", wallpaper: DUTY_WALLPAPERS.endwalker, sourceTitle: "万魔殿パンデモニウム零式：辺獄編3", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/a0917729fae/", briefing: "38℃台後半、煉獄の炎が荒れる零式フェネクス級。冷却を最優先してください。" }),
+  Object.freeze({ max: 39.5, range: "39.0–39.4℃", name: "フェニックス", tier: "レイド", code: "PHOENIX", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "大迷宮バハムート：真成編3", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/topics/detail/83a4937d0ac418022b0d980f06ed68e47e0aab2c/", briefing: "39℃台前半、転生の炎を宿すフェニックス級。直ちに涼しい場所へ移動してください。" }),
+  Object.freeze({ max: 40, range: "39.5–39.9℃", name: "バハムート・プライム", tier: "レイド", code: "TERAFLARE", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "大迷宮バハムート：真成編4", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/topics/detail/83a4937d0ac418022b0d980f06ed68e47e0aab2c/", briefing: "39℃台後半、テラフレアを放つバハムート・プライム級。屋外行動を中止してください。" }),
+  Object.freeze({ max: 40.5, range: "40.0–40.4℃", name: "零式・ヘファイストス", tier: "零式4層", code: "ABYSSOS SAVAGE", era: "暁月のフィナーレ", eraCode: "endwalker", wallpaper: DUTY_WALLPAPERS.endwalker, sourceTitle: "万魔殿パンデモニウム零式：煉獄編4", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/415152e3e5d/", briefing: "40℃台前半、生命神秘研究棟の零式ヘファイストス級。屋外行動を中止し、安全な屋内へ退避してください。" }),
+  Object.freeze({ max: 41, range: "40.5–40.9℃", name: "絶・龍神バハムート", tier: "絶", code: "UNENDING COIL", era: "紅蓮のリベレーター", eraCode: "stormblood", wallpaper: DUTY_WALLPAPERS.stormblood, sourceTitle: "絶バハムート討滅戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/1a863f1ea3b/", briefing: "40℃台後半、絶望の詩で蘇る龍神バハムート級。直ちに冷房下へ退避してください。" }),
+  Object.freeze({ max: Infinity, range: "41.0℃+", name: "ゲロルト", tier: "究極の武器職人", code: "RELIC FORGE", era: "紅蓮のリベレーター", eraCode: "stormblood", wallpaper: DUTY_WALLPAPERS.stormblood, sourceTitle: "禁断の地 エウレカ：ピューロス編", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/topics/detail/cc68719ec764e6577d5a9495908148b60618b6ae", briefing: "41℃以上、戦闘コンテンツの尺度を超えたゲロルト級。暑さを武器に鍛え直す前に、直ちに冷房下へ退避してください。" })
+]);
+function battleDutyForWeather(station, summerProfile) {
+  const observed = Number.isFinite(station.temperature) ? station.temperature : 0;
+  const heatScore = summerProfile?.active ? summerProfile.score : observed;
+  const duty = HEAT_DUTIES.find(entry => heatScore < entry.max) || HEAT_DUTIES[HEAT_DUTIES.length - 1];
+  return { ...duty, heatScore, isOriginal: !duty.sourceUrl };
+}
+
 function messageCategory(station, climate) {
   if (climate.includes("湿熱")) return "humid";
   if (climate.includes("乾熱") || climate.includes("砂塵")) return "dry";
@@ -216,6 +256,7 @@ function analyzeClimate(station) {
   const precipitation = precipitationEffect(station.temperature, station.humidity, station.precipitation1h, station.precipitation10m);
   const threat = calculateThreat(station);
   const difficulty = difficultyForThreat(threat);
+  const battleDuty = battleDutyForWeather(station, summerProfile);
   const category = messageCategory(station, climate);
   const messages = CLIMATE_MESSAGES[category];
   const comment = messages[deterministicIndex(`${station.id}:${station.observationTime}:${climate}`, messages.length)];
@@ -229,6 +270,7 @@ function analyzeClimate(station) {
     precipitation,
     threat,
     difficulty,
+    battleDuty,
     comment,
     category,
     officialTrait: lore?.officialTrait || "公式資料との照合対象がありません。",

@@ -4,27 +4,46 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#06141e">
-  <meta name="description" content="灼熱デバフ討滅戦。現在地の暑さをエオルゼアの地域と環境ギミックに換算し、暑さの基準・熊谷と比較する非公式ファンサイト。">
-  <title>灼熱デバフ討滅戦｜現在地の暑さをエオルゼア換算</title>
+  <meta name="description" content="現在地に近いアメダス観測値を、FF14の炎属性ボス級へ換算。31～41℃以上を0.5℃刻みで判定する酷炎天迎撃戦。">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:site_name" content="酷炎天迎撃戦">
+  <meta property="og:title" content="あなたの暑さはどの炎属性ボス級？｜酷炎天迎撃戦">
+  <meta property="og:description" content="現在地に近いアメダス観測値を31～41℃以上まで0.5℃刻みで、イフリート、朱雀、フェニックス、零式ヘファイストス、絶バハムート、ゲロルト級へ判定。40℃以上は酷暑日級。">
+  <meta property="og:url" content="https://spthx.github.io/eorzea-weather/">
+  <meta property="og:image" content="https://spthx.github.io/eorzea-weather/assets/wallpapers/endwalker-04.jpg">
+  <meta property="og:image:width" content="2560">
+  <meta property="og:image:height" content="1440">
+  <meta property="og:image:alt" content="FFXIVファンキットイラストを使用した酷炎天迎撃戦">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="あなたの暑さはどの炎属性ボス級？">
+  <meta name="twitter:description" content="現在地に近い観測値をFF14の炎属性ボス級へ判定。40℃以上は酷暑日級。">
+  <meta name="twitter:image" content="https://spthx.github.io/eorzea-weather/assets/wallpapers/endwalker-04.jpg">
+  <link rel="canonical" href="https://spthx.github.io/eorzea-weather/">
+  <title>酷炎天迎撃戦｜あなたの暑さはどの炎属性ボス級？</title>
   <link rel="preconnect" href="https://www.jma.go.jp">
-  <link rel="stylesheet" href="css/style.css?v=12">
+  <link rel="stylesheet" href="css/style.css?v=16">
 </head>
 <body class="climate-heat">
   <div class="ambient" aria-hidden="true">
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
-  <div class="duty-intro" aria-hidden="true">
-    <div class="duty-intro-ring"><i></i><i></i><i></i></div>
-    <p>NEW DUTY</p>
-    <strong>灼熱デバフ<br>討滅戦</strong>
-    <span>DUTY COMMENCED</span>
+  <div id="duty-intro" class="duty-intro" aria-hidden="true">
+    <div class="duty-intro-scan"></div>
+    <div class="duty-intro-aoe"><i></i><i></i><i></i></div>
+    <p id="duty-intro-status">CURRENT TEMPERATURE SYNC</p>
+    <div class="duty-intro-temperature"><strong id="duty-intro-temp">--.-</strong><small>℃</small></div>
+    <div class="duty-intro-result">
+      <span id="duty-intro-class">HEAT DUTY</span>
+      <strong id="duty-intro-enemy">炎属性ボス判定中</strong>
+      <b>酷炎天迎撃戦</b>
+    </div>
   </div>
 
   <main class="site-shell">
-    <nav class="hud-nav" aria-label="エオルゼア気候観測局メニュー">
-      <a href="#site-title"><span>MAIN</span><b>討滅戦</b></a>
+    <nav class="hud-nav" aria-label="酷炎天迎撃戦メニュー">
+      <a href="#site-title"><span>MAIN</span><b>迎撃戦</b></a>
       <a href="#status-heading"><span>STATUS</span><b>観測</b></a>
-      <a href="#lore-heading"><span>JOURNAL</span><b>設定</b></a>
       <a href="#comparison-heading"><span>TRIAL</span><b>比較</b></a>
       <a href="#ranking-heading"><span>RANK</span><b>順位</b></a>
       <div class="eorzea-clock"><small>ET</small><strong id="eorzea-time">--:--</strong><i aria-hidden="true"></i></div>
@@ -37,21 +56,21 @@
       </div>
       <div class="hero-rune" aria-hidden="true"><span>XIV</span></div>
       <div class="hero-brand">
-        <p class="eyebrow">EORZEA HEAT CONVERSION</p>
-        <h1 id="site-title">エオルゼア気候観測局</h1>
+        <p class="eyebrow">EORZEA HEAT DUTY FINDER</p>
+        <h1 id="site-title">酷炎天迎撃戦</h1>
       </div>
       <div class="hero-question">
         <span>現在地の暑さ、</span>
-        <strong>エオルゼアで言うと？</strong>
+        <strong>炎属性ボスでいうと？</strong>
       </div>
       <div class="quest-header hero-quest-header">
         <span class="quest-mark" aria-hidden="true">!</span>
-        <div><p>ACTIVE DUTY</p><h2 id="judgement-heading">灼熱デバフ討滅戦</h2></div>
+        <div><p>ACTIVE DUTY</p><h2 id="judgement-heading">酷炎天迎撃戦</h2></div>
         <span id="difficulty-badge" class="difficulty">解析中</span>
       </div>
       <div id="primary-judgement" class="primary-judgement hero-judgement" aria-live="polite">
         <div class="loading-crystal" aria-hidden="true"></div>
-        <p>現在地に近い観測地点から、エオルゼア換算中…</p>
+        <p>現在地に近い観測地点から、炎属性ボス級を判定中…</p>
       </div>
       <div class="target-cast" aria-label="現在の環境ギミック">
         <div class="target-cast-head"><span>TARGET INFO</span><strong id="target-cast-name">気候解析中</strong><small id="target-cast-value">--%</small></div>
@@ -79,7 +98,7 @@
     </header>
 
     <div class="job-marquee" aria-hidden="true">
-      <p><span>THE WEATHER PARTY IS ASSEMBLING</span><b>灼熱デバフ討滅戦・調査隊編成中</b></p>
+      <p><span>THE WEATHER PARTY IS ASSEMBLING</span><b>酷炎天迎撃戦・攻略隊編成中</b></p>
       <div class="job-marquee-viewport">
         <div class="job-marquee-track">
           <img src="assets/fankit/job-paladin.png" alt=""><img src="assets/fankit/job-darkknight.png" alt=""><img src="assets/fankit/job-blackmage.png" alt="">
@@ -94,9 +113,26 @@
       <div class="privacy-lock" aria-hidden="true">⌖</div>
       <div>
         <p id="privacy-title">位置情報は、この端末の中だけ。</p>
-        <small>最寄りのアメダスを探す計算にだけ使用。緯度・経度を保存せず、サイトのサーバーにも送信しません。</small>
+        <small>初回だけ最寄りのアメダスを探します。緯度・経度は保存せず、観測地点IDだけをこの端末に記憶。次回から許可確認は行いません。</small>
       </div>
-      <button id="location-button" type="button">現在地で再判定</button>
+      <button id="location-button" type="button">現在地を登録</button>
+    </section>
+
+    <section class="share-duty-card panel-gold" aria-labelledby="share-duty-heading">
+      <div class="share-duty-art" aria-hidden="true">
+        <img src="assets/wallpapers/endwalker-04.jpg" alt="">
+        <span></span>
+      </div>
+      <div class="share-duty-copy">
+        <p>PARTY RECRUITMENT / SHARE CARD</p>
+        <h2 id="share-duty-heading">あなたの暑さは<br><strong id="share-duty-name">コンテンツ判定中</strong></h2>
+        <div class="share-duty-meta"><span id="share-duty-tier">DUTY FINDER</span><b id="share-duty-score">--℃</b></div>
+        <p id="share-duty-detail">現在地に近いアメダス観測値から、炎属性ボス級を判定しています。</p>
+        <button id="share-duty-button" type="button">この迎撃戦を共有する</button>
+        <small id="share-duty-feedback" aria-live="polite">リンク共有時はFFXIVファンキットの大型イラストが表示されます。</small>
+      </div>
+      <img class="share-duty-job" src="assets/fankit/job-blackmage.png" alt="FFXIVファンキットの黒魔道士ピクセルアート">
+      <p class="share-duty-credit">FFXIV FAN KIT ARTWORK © SQUARE ENIX</p>
     </section>
 
     <section class="weather-party-hud panel-glass" aria-labelledby="party-hud-heading">
@@ -114,43 +150,10 @@
       </article>
     </section>
 
-    <section class="lore-section reveal-section" aria-labelledby="lore-heading">
-      <div class="section-title">
-        <span>02</span>
-        <div><p>LORE VERIFIED</p><h2 id="lore-heading">FF14設定監査ログ</h2></div>
-      </div>
-      <p class="section-note">公式の地域設定と、このサイトの推察・演出を混ぜずに表示します。</p>
-      <div class="quest-journal panel-gold">
-        <div class="quest-journal-mark" aria-hidden="true">!</div>
-        <div><p>LEVEL SYNC 100</p><h3>気候フィールド調査任務</h3><ul><li class="is-complete">公式本文から地域特性を確認</li><li class="is-complete">現在地のアメダス観測値と照合</li><li>候補航路から換算先を決定</li></ul></div>
-        <span>IN PROGRESS</span>
-      </div>
-      <article id="lore-card" class="lore-card panel-gold" aria-live="polite">
-        <p class="skeleton">現在の換算先について公式資料を照合中…</p>
-      </article>
-      <div class="lore-atlas-banner panel-gold">
-        <img src="assets/wallpapers/shadowbringers-01.jpg" alt="" aria-hidden="true">
-        <span aria-hidden="true"></span>
-        <div><p>THE WEATHER LORE ARCHIVE</p><h3>気候フィールド図鑑</h3><small>新生から黄金まで、公式本文と公式景観を気候の切り口で再読する。</small></div>
-        <img class="lore-atlas-job" src="assets/fankit/job-blackmage.png" alt="FFXIVファンキットの黒魔道士ピクセルアート">
-      </div>
-      <div class="lore-atlas-controls" aria-label="拡張パッケージで絞り込み">
-        <button type="button" class="is-active" data-lore-era="ALL">ALL</button>
-        <button type="button" data-lore-era="A REALM REBORN">新生</button>
-        <button type="button" data-lore-era="HEAVENSWARD">蒼天</button>
-        <button type="button" data-lore-era="STORMBLOOD">紅蓮</button>
-        <button type="button" data-lore-era="SHADOWBRINGERS">漆黒</button>
-        <button type="button" data-lore-era="ENDWALKER">暁月</button>
-        <button type="button" data-lore-era="DAWNTRAIL">黄金</button>
-      </div>
-      <div id="lore-atlas-grid" class="lore-atlas-grid" aria-live="polite"></div>
-      <p class="lore-atlas-note"><strong>読み方：</strong>カード上段は公式設定、下段の「換算モデル」は本サイト独自です。ピューロスは公式に「氷炎の地」であり、単純な最高気温枠としては扱いません。</p>
-    </section>
-
     <section class="comparison-section reveal-section" aria-labelledby="comparison-heading">
       <div class="section-wallpaper section-wallpaper-mist" aria-hidden="true"><img src="assets/wallpapers/mist.jpg" alt=""><span></span></div>
       <div class="section-title">
-        <span>03</span>
+        <span>02</span>
         <div><p>TRIAL: HEAT DUEL</p><h2 id="comparison-heading">灼熱一騎討ち</h2></div>
       </div>
       <p class="section-note">現在地 vs 暑さの基準・熊谷。同一観測時刻の気温と環境ギミックで比較。</p>
@@ -163,7 +166,7 @@
     <section class="ranking-section reveal-section" aria-labelledby="ranking-heading">
       <div class="section-wallpaper section-wallpaper-eternity" aria-hidden="true"><img src="assets/wallpapers/eternity.jpg" alt=""><span></span></div>
       <div class="section-title">
-        <span>04</span>
+        <span>03</span>
         <div><p>WORLD RANKING</p><h2 id="ranking-heading">本日の攻略ランキング</h2></div>
       </div>
       <div class="ranking-tabs" role="tablist" aria-label="ランキング種別">
@@ -188,8 +191,8 @@
     <section id="error-panel" class="error-panel" hidden aria-live="assertive"></section>
 
     <footer>
-      <p class="footer-title">エオルゼア気候観測局</p>
-      <p>本サイトは非公式・非営利のファンサイトです。エオルゼア換算と環境ギミック強度は独自の演出であり、ゲーム内の公式気温設定、天気予報、熱中症指数、警報・注意報ではありません。健康・防災に関する判断は、気象庁や自治体などの公式情報をご確認ください。</p>
+      <p class="footer-title">酷炎天迎撃戦</p>
+      <p>本サイトは非公式・非営利のファンサイトです。炎属性ボス級と環境ギミック強度は独自の演出であり、ゲーム内の公式気温設定、天気予報、熱中症指数、警報・注意報ではありません。「酷暑日級」は気象庁の「酷暑日」を参考にした演出表現です。健康・防災に関する判断は、気象庁や自治体などの公式情報をご確認ください。</p>
       <p>気象データ：気象庁アメダス最新観測値 ／ ファンキット画像：© SQUARE ENIX</p>
       <nav><a href="https://www.jma.go.jp/" target="_blank" rel="noopener">気象庁</a><a href="https://jp.finalfantasyxiv.com/lodestone/special/fankit/twitter_kit/" target="_blank" rel="noopener">FFXIVファンキット</a><a href="https://support.jp.square-enix.com/rule.php?id=5381&la=0&tag=authc" target="_blank" rel="noopener">著作物利用条件</a></nav>
       <small>FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.</small>
@@ -197,15 +200,15 @@
   </main>
 
   <noscript><p class="noscript">このサイトは最新観測値を表示するためJavaScriptを使用します。</p></noscript>
-  <script src="js/config.js?v=8"></script>
+  <script src="js/config.js?v=9"></script>
   <script src="js/eorzea-lore.js?v=5"></script>
   <script src="js/locations.js?v=5"></script>
   <script src="js/utils.js?v=5"></script>
   <script src="js/amedas.js?v=5"></script>
-  <script src="js/geolocation.js?v=5"></script>
-  <script src="js/eorzea-climate.js?v=5"></script>
+  <script src="js/geolocation.js?v=6"></script>
+  <script src="js/eorzea-climate.js?v=18"></script>
   <script src="js/rankings.js?v=8"></script>
-  <script src="js/ui.js?v=12"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="js/ui.js?v=19"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>

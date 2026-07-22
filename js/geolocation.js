@@ -5,6 +5,35 @@ function requestCurrentPosition() {
   });
 }
 
+function rememberLocationStation(station) {
+  if (!station?.id) return;
+  try {
+    localStorage.setItem(CONFIG.locationStationKey, JSON.stringify({ stationId: station.id, savedAt: Date.now() }));
+    localStorage.setItem(CONFIG.locationDecisionKey, "granted");
+  } catch (_) {}
+}
+
+function readRememberedStationId() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CONFIG.locationStationKey));
+    return typeof saved?.stationId === "string" ? saved.stationId : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function clearRememberedLocationStation() {
+  try { localStorage.removeItem(CONFIG.locationStationKey); } catch (_) {}
+}
+
+function rememberLocationDenied() {
+  try { localStorage.setItem(CONFIG.locationDecisionKey, "denied"); } catch (_) {}
+}
+
+function automaticLocationDisabled() {
+  try { return localStorage.getItem(CONFIG.locationDecisionKey) === "denied"; } catch (_) { return false; }
+}
+
 function nearestStation(position, stations) {
   const here = { lat: position.coords.latitude, lon: position.coords.longitude };
   const candidates = stations

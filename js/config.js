@@ -5,6 +5,8 @@ const CONFIG = Object.freeze({
   mapDataBaseUrl: "https://www.jma.go.jp/bosai/amedas/data/map",
   rankingLimit: 10,
   cacheKey: "eorzea-weather:last-good-snapshot:v1",
+  locationStationKey: "eorzea-weather:nearest-station:v1",
+  locationDecisionKey: "eorzea-weather:location-decision:v1",
   geolocation: {
     enableHighAccuracy: false,
     timeout: 8000,

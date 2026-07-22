@@ -16,15 +16,26 @@ const UI = {
   eorzeaTime: document.getElementById("eorzea-time"),
   weatherPartyList: document.getElementById("weather-party-list"),
   currentCard: document.getElementById("current-card"),
-  loreCard: document.getElementById("lore-card"),
-  loreAtlasGrid: document.getElementById("lore-atlas-grid"),
+
+
   comparisonGrid: document.getElementById("comparison-grid"),
   battleVerdict: document.getElementById("battle-verdict"),
   rankingList: document.getElementById("ranking-list"),
   rankingNote: document.getElementById("ranking-note"),
   allStationsList: document.getElementById("all-stations-list"),
   stationSummary: document.getElementById("station-summary"),
-  errorPanel: document.getElementById("error-panel")
+  errorPanel: document.getElementById("error-panel"),
+  shareDutyName: document.getElementById("share-duty-name"),
+  shareDutyTier: document.getElementById("share-duty-tier"),
+  shareDutyScore: document.getElementById("share-duty-score"),
+  shareDutyDetail: document.getElementById("share-duty-detail"),
+  shareDutyButton: document.getElementById("share-duty-button"),
+  shareDutyFeedback: document.getElementById("share-duty-feedback"),
+  dutyIntro: document.getElementById("duty-intro"),
+  dutyIntroStatus: document.getElementById("duty-intro-status"),
+  dutyIntroTemp: document.getElementById("duty-intro-temp"),
+  dutyIntroClass: document.getElementById("duty-intro-class"),
+  dutyIntroEnemy: document.getElementById("duty-intro-enemy")
 };
 
 const JOB_ART = [
@@ -48,18 +59,63 @@ function setObservation(snapshot) {
   UI.observationTime.textContent = `観測時刻 ${formatObservationTime(snapshot.latestTime)}${cacheText}`;
 }
 
+function setDutyWallpaper(nextWallpaper) {
+  if (!UI.climateWallpaper || !nextWallpaper || UI.climateWallpaper.getAttribute("src") === nextWallpaper) return;
+  UI.climateWallpaper.classList.add("is-switching");
+  const reveal = () => requestAnimationFrame(() => UI.climateWallpaper.classList.remove("is-switching"));
+  window.setTimeout(() => {
+    UI.climateWallpaper.addEventListener("load", reveal, { once: true });
+    UI.climateWallpaper.src = nextWallpaper;
+    if (UI.climateWallpaper.complete) reveal();
+  }, 180);
+}
+function heatDayClassForTemperature(temperature) {
+  if (!Number.isFinite(temperature)) return "暑熱判定中";
+  if (temperature >= 40) return "酷暑日級";
+  if (temperature >= 35) return "猛暑日級";
+  if (temperature >= 30) return "真夏日級";
+  return "暑熱級";
+}
+
+function playDutyIntro(station) {
+  if (!UI.dutyIntro || UI.dutyIntro.dataset.played === "true") return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    UI.dutyIntro.hidden = true;
+    UI.dutyIntro.dataset.played = "true";
+    return;
+  }
+  const duty = station?.analysis?.battleDuty;
+  const temperature = station?.temperature;
+  UI.dutyIntroTemp.textContent = Number.isFinite(temperature) ? temperature.toFixed(1) : "--.-";
+  UI.dutyIntroClass.textContent = heatDayClassForTemperature(temperature);
+  UI.dutyIntroEnemy.textContent = duty ? `${duty.name}級` : "観測データ確認完了";
+  UI.dutyIntroStatus.textContent = "CURRENT TEMPERATURE LOCKED";
+  UI.dutyIntro.dataset.played = "true";
+  requestAnimationFrame(() => requestAnimationFrame(() => UI.dutyIntro.classList.add("is-resolved")));
+  window.setTimeout(() => UI.dutyIntro.classList.add("is-finished"), 1550);
+  window.setTimeout(() => { UI.dutyIntro.hidden = true; }, 1950);
+}
+
+function dismissDutyIntro() {
+  if (!UI.dutyIntro) return;
+  UI.dutyIntro.classList.add("is-finished");
+  window.setTimeout(() => { UI.dutyIntro.hidden = true; }, 350);
+}
+
 function renderJudgement(station) {
   const a = station.analysis;
+  const duty = a.battleDuty;
   document.body.className = bodyClimateClass(a);
   document.documentElement.style.setProperty("--heat-opacity", String(Math.min(.58, a.threat / 170)));
-  const nextWallpaper = a.wallpaper || "assets/wallpapers/heavens.jpg";
-  if (!UI.climateWallpaper.src.endsWith(nextWallpaper)) UI.climateWallpaper.src = nextWallpaper;
+  const nextWallpaper = duty.wallpaper || a.wallpaper || "assets/wallpapers/heavens.jpg";
+  document.body.dataset.dutyEra = duty.eraCode || "unknown";
+  setDutyWallpaper(nextWallpaper);
   const prefectureName = station.prefecture || station.stationName || "観測地点";
   const municipalityName = station.municipality || station.stationName || "所在地情報なし";
-  const distanceText = Number.isFinite(station.distanceKm) ? `現在地から約${station.distanceKm.toFixed(1)}km` : "基準観測地点";
+  const distanceText = Number.isFinite(station.distanceKm) ? `現在地から約${station.distanceKm.toFixed(1)}km` : station.rememberedLocation ? "端末に記憶した最寄り観測地点" : "基準観測地点";
   const stationDetail = `${station.prefecture || "所在地情報なし"} ${municipalityName} ／ アメダス観測地点 ${station.stationName} ／ ${distanceText}`;
-  UI.judgementHeading.textContent = "灼熱デバフ討滅戦";
-  UI.difficulty.textContent = `演出難易度：${a.difficulty}`;
+  UI.judgementHeading.textContent = heatDayClassForTemperature(station.temperature) + "：酷炎天迎撃戦";
+  UI.difficulty.textContent = duty.tier + " / " + duty.code;
   UI.difficulty.dataset.level = a.difficulty;
   UI.threatScore.textContent = a.threat;
   requestAnimationFrame(() => { UI.threatBar.style.width = `${a.threat}%`; });
@@ -75,11 +131,12 @@ function renderJudgement(station) {
       <button class="observation-toggle" type="button" aria-expanded="false" aria-controls="observation-detail" aria-label="${safeText(prefectureName)}の詳しい観測地点を表示"><span>${safeText(prefectureName)}</span><i aria-hidden="true">⌄</i><small>観測地点を表示</small></button>
       <div id="observation-detail" class="observation-detail" hidden><span>${safeText(stationDetail)}</span></div>
     </div>
-    <p class="judgement-overline">YOUR REAL-WORLD HEAT IS...</p>
+    <p class="judgement-overline">YOUR HEAT DUTY IS...</p>
     <div class="judgement-temp-line"><div class="judgement-temp">${Number.isFinite(station.temperature) ? station.temperature.toFixed(1) : "--"}<small>℃</small></div><span class="judgement-humidity">湿度 ${formatInteger(station.humidity, "％")}</span></div>
-    <h3 class="judgement-area">${safeText(a.area)}</h3>
+    <h3 class="judgement-area">${safeText(duty.name)}<small>級</small></h3>
+    <p class="judgement-field-reference">HEAT BAND：${safeText(duty.range || "31.0℃未満")}</p>
     <p class="judgement-type">${safeText(a.climate)}</p>
-    <div class="judgement-provenance"><span>${safeText(a.basisType)}</span><a href="#lore-heading">公式根拠と推察を確認</a></div>
+    <div class="judgement-provenance"><span>${safeText(duty.tier)}</span><span class="era-badge">${safeText(duty.era || "実装時代不明")}</span>${duty.sourceUrl ? `<a href="${duty.sourceUrl}" target="_blank" rel="noopener">${safeText(duty.sourceTitle)} ↗</a>` : `<span>独自判定</span>`}</div>
     <div class="judgement-tags"><span>${safeText(a.attribute)}</span><span>${safeText(a.wind)}</span><span>${safeText(a.precipitation)}</span></div>
     <p class="judgement-comment">${safeText(a.comment)}</p>`;
   const observationToggle = UI.judgement.querySelector(".observation-toggle");
@@ -91,8 +148,34 @@ function renderJudgement(station) {
     observationDetail.hidden = expanded;
     observationToggle.querySelector("small").textContent = expanded ? "観測地点を表示" : "詳細を閉じる";
   });
+  renderShareDuty(station);
   renderStatusEffects(station);
-  renderLoreAudit(station);
+
+}
+
+function renderShareDuty(station) {
+  if (!UI.shareDutyButton || !station.analysis?.battleDuty) return;
+  const duty = station.analysis.battleDuty;
+  const temp = Number.isFinite(station.temperature) ? station.temperature.toFixed(1) : "--";
+  UI.shareDutyName.textContent = duty.name + "級";
+  UI.shareDutyTier.textContent = heatDayClassForTemperature(station.temperature) + " / " + duty.tier;
+  UI.shareDutyScore.textContent = temp + "℃";
+  UI.shareDutyDetail.textContent = duty.briefing;
+  UI.shareDutyButton.onclick = async () => {
+    const url = location.origin + location.pathname;
+    const text = "現在地に近い観測値は" + temp + "℃、" + heatDayClassForTemperature(station.temperature) + "・" + duty.name + "級。あなたの暑さはどの炎属性ボス級？ #酷炎天迎撃戦 #FF14";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "酷炎天迎撃戦", text, url });
+        UI.shareDutyFeedback.textContent = "パーティ募集リンクを共有しました。";
+      } else {
+        await navigator.clipboard.writeText(text + " " + url);
+        UI.shareDutyFeedback.textContent = "共有文とリンクをコピーしました。";
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") UI.shareDutyFeedback.textContent = "共有できませんでした。URLをコピーしてお使いください。";
+    }
+  };
 }
 
 function renderStatusEffects(station) {
@@ -111,12 +194,12 @@ function renderWeatherParty(current, nationalTop, kumagaya) {
     { role: "T", name: "YOU / CURRENT", station: current, art: JOB_ART[0] },
     { role: "H", name: "NATIONAL TOP", station: nationalTop, art: JOB_ART[4] },
     { role: "D", name: "KUMAGAYA", station: kumagaya, art: JOB_ART[2] },
-    { role: "D", name: "LORE ARCHIVE", station: current, art: JOB_ART[7], archive: true }
+    { role: "D", name: "DUTY ARCHIVE", station: current, art: JOB_ART[7], archive: true }
   ];
   UI.weatherPartyList.innerHTML = members.map(member => {
     const hp = member.archive ? 100 : Math.max(8, 100 - member.station.analysis.threat);
     const mp = member.archive ? 100 : (Number.isFinite(member.station.humidity) ? Math.min(100, member.station.humidity) : 0);
-    const detail = member.archive ? `${EORZEA_LORE_LIST.length} REGIONS / SETTING CHECKED` : `${member.station.temperature.toFixed(1)}℃ / ${member.station.analysis.areaName}`;
+    const detail = member.archive ? `${HEAT_DUTIES.length - 1} HEAT BANDS / 0.5℃ STEPS` : `${member.station.temperature.toFixed(1)}℃ / ${member.station.analysis.battleDuty.name}`;
     return `<article class="party-member ${member === members[0] ? "is-you" : ""}">
       <span class="party-role role-${member.role.toLowerCase()}">${member.role}</span><img src="${member.art}" alt=""><div class="party-member-info"><strong>${safeText(member.name)}</strong><small>${safeText(detail)}</small><div class="party-bars"><i style="--party-hp:${hp}%"></i><b style="--party-mp:${mp}%"></b></div></div><em>${hp}%</em>
     </article>`;
@@ -129,64 +212,6 @@ function updateEorzeaTime() {
   const hours = Math.floor(eorzeaSeconds / 3600);
   const minutes = Math.floor((eorzeaSeconds % 3600) / 60);
   UI.eorzeaTime.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-}
-
-function renderLoreAudit(station) {
-  const a = station.analysis;
-  const source = a.sourceUrl
-    ? `<a class="lore-source-link" href="${a.sourceUrl}" target="_blank" rel="noopener">${safeText(a.sourceTitle)} ↗</a>`
-    : "";
-  const candidates = (a.candidates || []).map((entry, index) => `<article class="lore-candidate ${index === 0 ? "is-primary" : ""}">
-    <span>${index === 0 ? "MAIN ROUTE" : `ALT ${index}`}</span>
-    <strong>${safeText(entry.lore.name)}</strong>
-    <small>${safeText(entry.lore.tags.slice(0, 2).join(" / "))}</small>
-    <div><i style="width:${entry.score}%"></i></div><em>演出適合 ${entry.score}%</em>
-  </article>`).join("");
-  const summerRoutes = a.summerProfile ? `<div class="summer-route-panel">
-    <div class="summer-route-equation"><span>SUMMER HEAT ROUTE</span><strong>${safeText(a.decisionBand)}</strong><p>実測気温に湿度の加算と風の軽減を反映。湿度65％以上は湿潤、未満は乾熱へ進み、観測値が変われば段階も移動します。</p></div>
-    <div class="summer-route-row wet"><b>湿潤</b>${[
-      ["ヤクテル樹海","<27"], ["トライヨラ","27–28.9"], ["コザマル・カ","29–30.9"], ["サベネア島","31–36.9"], ["ピューロス帯","≥37"]
-    ].map(([name, range]) => `<span class="${a.areaName.includes(name.replace("帯", "")) ? "is-active" : ""}"><small>${range}</small>${name}</span>`).join("")}</div>
-    <div class="summer-route-row dry"><b>乾熱</b>${[
-      ["ラノシア","<27"], ["ウルダハ","27–28.9"], ["シャーローニ","29–30.9"], ["南ザナラーン","31–32.9"], ["アム・アレーン","33–34.9"], ["ピューロス帯","≥35"]
-    ].map(([name, range]) => `<span class="${a.areaName.includes(name.replace("帯", "")) ? "is-active" : ""}"><small>${range}</small>${name}</span>`).join("")}</div>
-  </div>` : "";
-  UI.loreCard.innerHTML = `
-    <div class="lore-card-head">
-      <div><p>LORE REFERENCE</p><h3>${safeText(a.areaName)}</h3></div>
-      <span class="lore-checked">SETTING CHECKED</span>
-    </div>
-    <div class="lore-evidence official-evidence"><span>公式資料で確認</span><p>${safeText(a.officialTrait)}</p>${source}</div>
-    <div class="lore-route" aria-hidden="true"><i></i><b>現実の観測値と照合</b><i></i></div>
-    <div class="lore-evidence inference-evidence"><span>今回の判定・${safeText(a.decisionBand)}</span><p>${safeText(a.conversionReason)}</p></div>
-    ${summerRoutes}
-    <div class="lore-candidate-head"><span>候補航路</span><p>気温・湿度・降水・風を、独自モデルで全地域と照合</p></div>
-    <div class="lore-candidates">${candidates}</div>
-    <p class="lore-boundary"><strong>本サイト独自：</strong> 25℃未満は5℃段階、25℃以上は気温＋湿度補正−風軽減の暑熱ルートで判定します。「級」、強度、難易度は公式指標ではありません。</p>`;
-}
-
-function loreEraLabel(era) {
-  return ({
-    "A REALM REBORN": "新生エオルゼア", HEAVENSWARD: "蒼天のイシュガルド", STORMBLOOD: "紅蓮のリベレーター",
-    SHADOWBRINGERS: "漆黒のヴィランズ", ENDWALKER: "暁月のフィナーレ", DAWNTRAIL: "黄金のレガシー"
-  })[era] || era;
-}
-
-function renderLoreAtlas(era = "ALL") {
-  if (!UI.loreAtlasGrid) return;
-  const loreList = era === "ALL" ? EORZEA_LORE_LIST : EORZEA_LORE_LIST.filter(lore => lore.era === era);
-  UI.loreAtlasGrid.innerHTML = loreList.map((lore, index) => `<article class="lore-atlas-card" style="--card-delay:${index * 45}ms">
-    <div class="lore-atlas-art"><img src="${lore.wallpaper}" alt=""><span></span><b>${safeText(lore.era)}</b></div>
-    <div class="lore-atlas-copy">
-      <p>${safeText(loreEraLabel(lore.era))}</p>
-      <h4>${safeText(lore.name)}</h4>
-      <small class="lore-atlas-region">${safeText(lore.region)}</small>
-      <div class="lore-atlas-tags">${lore.tags.map(tag => `<span>${safeText(tag)}</span>`).join("")}</div>
-      <p class="lore-atlas-trait">${safeText(lore.officialTrait)}</p>
-      <div class="lore-atlas-model"><span>独自換算モデル</span><b>${lore.model.temperature}℃</b><b>湿度${lore.model.humidity}％</b><b>風${lore.model.wind}m/s</b></div>
-      <a href="${lore.sourceUrl}" target="_blank" rel="noopener">${safeText(lore.sourceTitle)} ↗</a>
-    </div>
-  </article>`).join("");
 }
 
 function weatherGlyph(station) {
@@ -227,7 +252,7 @@ function comparisonCard(station, role, ranking) {
     <div class="combatant-label"><span>${role}</span><b>${badge}</b></div>
     <h3 class="combatant-place">${safeText(station.prefecture || "現在地周辺")}・${safeText(station.municipality || station.stationName)}<small>観測地点 ${safeText(station.stationName)} / 全国${tempRank || "–"}位</small></h3>
     <p class="combatant-temp">${Number.isFinite(station.temperature) ? station.temperature.toFixed(1) : "--"}<small>℃</small></p>
-    <p class="combatant-climate">${safeText(a?.area || "判定不能")}<br>${safeText(a?.climate || "データ不足")}</p>
+    <p class="combatant-climate">${safeText((a?.battleDuty?.name || "判定不能") + "級")}<br>${safeText(a?.climate || "データ不足")}</p>
     <div class="mini-stats"><span>湿度<b>${formatInteger(station.humidity,"％")}</b></span><span>風速<b>${formatValue(station.windSpeed,"m/s")}</b></span><span>独自強度<b>${a?.threat ?? "--"}</b></span><span>演出難易度<b>${a?.difficulty || "--"}</b></span></div>
   </article>`;
 }
@@ -246,7 +271,7 @@ function renderComparison(current, kumagaya, rankings) {
 function rankingMeta(kind, item) {
   if (kind === "humid") return { value: item.humidScore.toFixed(1), unit: "独自湿熱値", note: `${formatValue(item.temperature,"℃")} / ${formatInteger(item.humidity,"％")}` };
   if (kind === "threat") return { value: item.analysis.threat, unit: `演出${item.analysis.difficulty}`, note: `${formatValue(item.temperature,"℃")} / ${item.analysis.climate}` };
-  return { value: item.temperature.toFixed(1), unit: "℃", note: `${formatInteger(item.humidity,"％")} / ${item.analysis.area}` };
+  return { value: item.temperature.toFixed(1), unit: "℃", note: `${formatInteger(item.humidity,"％")} / ${item.analysis.battleDuty.name}` };
 }
 
 function renderRanking(kind, rankings, targetId) {
@@ -271,7 +296,7 @@ function renderAllStations(rankings) {
   const kumagayaRank = rankOf(ranking, CONFIG.kumagayaStationId);
   const hotter = kumagayaRank ? kumagayaRank - 1 : 0;
   UI.stationSummary.textContent = `${ranking.length}地点 / 熊谷${kumagayaRank || "–"}位 / 熊谷超え${hotter}地点`;
-  UI.allStationsList.innerHTML = ranking.map((item, index) => `<article class="all-station-row"><em>${index + 1}</em><span><b>${safeText(item.prefecture || "所在地情報なし")}・${safeText(item.municipality || item.stationName)}</b><small>${safeText(item.stationName)} / ${safeText(item.analysis.area)}</small></span><strong>${item.temperature.toFixed(1)}℃</strong></article>`).join("");
+  UI.allStationsList.innerHTML = ranking.map((item, index) => `<article class="all-station-row"><em>${index + 1}</em><span><b>${safeText(item.prefecture || "所在地情報なし")}・${safeText(item.municipality || item.stationName)}</b><small>${safeText(item.stationName)} / ${safeText(item.analysis.battleDuty.name)}級</small></span><strong>${item.temperature.toFixed(1)}℃</strong></article>`).join("");
 }
 
 function showError(message) {
