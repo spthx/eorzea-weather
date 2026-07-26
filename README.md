@@ -36,17 +36,6 @@
 - [絶バハムート討滅戦](https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/1a863f1ea3b/)
 - [禁断の地 エウレカ：ピューロス編／ゲロルト](https://jp.finalfantasyxiv.com/lodestone/topics/detail/cc68719ec764e6577d5a9495908148b60618b6ae)
 
-## 判定背景
-
-判定されたコンテンツの実装拡張に合わせて、新生／蒼天／紅蓮／漆黒／暁月／黄金の公式画像またはFFXIVファンキット画像へ背景を切り替えます。紅蓮・黄金の画像は公式ファンキットのSNS用ヘッダー、新生画像は新生エオルゼア公式サイト掲載画像です。
-
-## ローカル確認
-
-```powershell
-python -m http.server 4173
-```
-
-`http://127.0.0.1:4173/` を開きます。
 
 ## 権利表記
 
