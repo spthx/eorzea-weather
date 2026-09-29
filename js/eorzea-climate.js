@@ -197,7 +197,7 @@ function difficultyForThreat(score) {
 }
 
 const DUTY_WALLPAPERS = Object.freeze({
-  arr: "assets/wallpapers/a-realm-reborn.jpg",
+  arr: "assets/wallpapers/arr-before-the-fall-fankit.jpg",
   heavensward: "assets/wallpapers/heavensward-01.jpg",
   stormblood: "assets/wallpapers/stormblood-fankit.jpg",
   shadowbringers: "assets/wallpapers/shadowbringers-01.jpg",
@@ -206,7 +206,7 @@ const DUTY_WALLPAPERS = Object.freeze({
 });
 
 const HEAT_DUTIES = Object.freeze([
-  Object.freeze({ max: 31, name: "赤熱のブッシュファイア", tier: "火属性予兆", code: "BUSHFIRE", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "魔獣領域 ハラタリ修練所", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/98319325b98/", briefing: "31℃未満でも赤熱のブッシュファイア級。日陰を選び、早めに水分を補給してください。" }),
+  Object.freeze({ max: 31, range: "31.0℃未満", name: "炎属性ボス出現なし", tier: "判定範囲外", code: "NO FIRE ENCOUNTER", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "", sourceUrl: "", briefing: "独自の暑さ換算が31℃未満です。炎属性ボスの判定範囲には入っていません。" }),
   Object.freeze({ max: 31.5, range: "31.0–31.4℃", name: "赤熱のブッシュファイア", tier: "ダンジョン", code: "BUSHFIRE", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "魔獣領域 ハラタリ修練所", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/98319325b98/", briefing: "31℃台前半、ハラタリの赤熱のブッシュファイア級。屋外行動を短く区切ってください。" }),
   Object.freeze({ max: 32, range: "31.5–31.9℃", name: "イフリート", tier: "討伐戦", code: "HELLFIRE", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "イフリート討伐戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/c3e6020e9e6/", briefing: "31℃台後半、焔神イフリートの『地獄の火炎』級。直射日光を避けてください。" }),
   Object.freeze({ max: 32.5, range: "32.0–32.4℃", name: "究極の焔神イフリート", tier: "極", code: "EXTREME IFRIT", era: "新生エオルゼア", eraCode: "arr", wallpaper: DUTY_WALLPAPERS.arr, sourceTitle: "極イフリート討滅戦", sourceUrl: "https://jp.finalfantasyxiv.com/lodestone/playguide/db/duty/6af1a94ccca/", briefing: "32℃台前半、究極の力に覚醒した焔神級。水分と塩分を整えてください。" }),
@@ -233,7 +233,7 @@ function battleDutyForWeather(station, summerProfile) {
   const observed = Number.isFinite(station.temperature) ? station.temperature : 0;
   const heatScore = summerProfile?.active ? summerProfile.score : observed;
   const duty = HEAT_DUTIES.find(entry => heatScore < entry.max) || HEAT_DUTIES[HEAT_DUTIES.length - 1];
-  return { ...duty, heatScore, isOriginal: !duty.sourceUrl };
+  return { ...duty, heatScore, outOfRange: heatScore < 31, isOriginal: !duty.sourceUrl };
 }
 
 function messageCategory(station, climate) {

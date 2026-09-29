@@ -26,10 +26,10 @@ function renderApp() {
   const nationalTop = appState.rankings.temperature[0];
   if (!current || !kumagaya || !nationalTop) throw new Error("比較に必要な観測地点が欠測しています。");
   setObservation(appState.snapshot);
-  renderJudgement(current);
+  renderJudgement(current, appState.usedLocation);
   renderCurrentCard(current, appState.usedLocation);
-  renderComparison(current, kumagaya, appState.rankings);
-  renderWeatherParty(current, nationalTop, kumagaya);
+  renderComparison(current, kumagaya, appState.rankings, appState.usedLocation);
+  renderWeatherParty(current, nationalTop, kumagaya, appState.usedLocation);
   renderRanking(appState.rankingKind, appState.rankings, current.id);
   renderAllStations(appState.rankings);
   setLocationButtonState();
@@ -107,22 +107,6 @@ document.querySelectorAll("[data-ranking]").forEach(button => button.addEventLis
   document.querySelectorAll("[data-ranking]").forEach(tab => tab.setAttribute("aria-selected", String(tab === button)));
   if (appState.rankings && appState.current) renderRanking(appState.rankingKind, appState.rankings, appState.current.id);
 }));
-
-document.documentElement.classList.add("motion-ready");
-if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  const revealObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: .01, rootMargin: "0px 0px -8% 0px" });
-  document.querySelectorAll(".reveal-section").forEach(section => revealObserver.observe(section));
-} else {
-  document.querySelectorAll(".reveal-section").forEach(section => section.classList.add("is-visible"));
-}
-
 
 updateEorzeaTime();
 setInterval(updateEorzeaTime, 1000);

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Shippori+Mincho:wght@600;700;800&display=swap');
 
 :root {
   color-scheme: dark;
@@ -698,3 +698,87 @@ body[data-duty-era="stormblood"] .hero-wallpaper::after { background: linear-gra
 body[data-duty-era="shadowbringers"] .hero-wallpaper::after { background: linear-gradient(180deg,rgba(5,7,10,.26),rgba(7,8,12,.25) 31%,rgba(3,8,13,.82) 72%,#061018 95%),radial-gradient(circle at 50% 20%,transparent 0 22%,rgba(0,0,0,.48) 72%); }
 body[data-duty-era="endwalker"] .hero-wallpaper::after { background: linear-gradient(180deg,rgba(11,13,30,.24),rgba(12,16,34,.2) 31%,rgba(5,9,19,.82) 72%,#061018 95%),radial-gradient(circle at 50% 20%,transparent 0 24%,rgba(34,39,79,.34) 72%); }
 body[data-duty-era="dawntrail"] .hero-wallpaper::after { background: linear-gradient(180deg,rgba(5,21,28,.2),rgba(5,18,25,.18) 31%,rgba(3,10,14,.8) 72%,#061018 95%),radial-gradient(circle at 50% 20%,transparent 0 24%,rgba(15,70,77,.32) 72%); }
+
+/* Encounter edition: make the observed temperature and boss the focal point. */
+::selection { color: #160c08; background: #ffd994; }
+:focus-visible { outline: 2px solid #ffe2a3; outline-offset: 3px; }
+html { scrollbar-color: #9a7348 #071014; }
+body { background: radial-gradient(circle at 50% -10%, rgba(169,63,32,.2), transparent 34%), #061014; }
+body::before { opacity: .12; }
+body::after { display: none; }
+.site-shell { max-width: 1180px; }
+.hud-nav { border-color: rgba(231,184,113,.38); background: rgba(8,16,21,.96); }
+.hero { min-height: 1000px; border-radius: 20px; box-shadow: 0 28px 72px rgba(0,0,0,.44); }
+.hero::after { opacity: .18; animation: none; }
+.hero-wallpaper img { height: 100%; transform: none; animation: none; filter: saturate(1.03) contrast(1.09) brightness(.78); object-position: 50% 8%; }
+body .hero .hero-wallpaper::after { background: linear-gradient(180deg, rgba(4,9,14,.62) 0%, rgba(5,9,13,.22) 17%, rgba(4,9,13,.76) 40%, #071014 83%), radial-gradient(circle at 70% 28%, rgba(214,82,33,.15), transparent 48%); }
+.heat-haze { opacity: .12; animation-duration: 9s; }
+.hero-rune { width: 250px; height: 250px; top: 36px; right: -90px; color: rgba(255,221,162,.09); border-color: rgba(255,218,161,.14); box-shadow: none; animation: none; }
+.hero-brand { align-items: baseline; }
+.hero-brand .eyebrow { color: #efc887; font-size: .57rem; letter-spacing: .19em; }
+.hero-brand h1 { font-family: "Shippori Mincho", serif; font-size: .73rem; letter-spacing: .02em; }
+.hero-question { margin-top: 36px; animation: none; }
+.hero-question span { font-size: .91rem; color: #fff7e7; }
+.hero-question strong { margin-top: 8px; font-family: "Shippori Mincho", serif; font-size: clamp(1.45rem, 6.8vw, 3.25rem); font-weight: 800; letter-spacing: -.025em; color: #ffe4a1; }
+.hero-quest-header { margin-top: 28px; animation: none; }
+.hero-quest-header h2 { font-family: "Shippori Mincho", serif; font-size: .85rem; }
+.hero-quest-header .difficulty { max-width: 47%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: .58rem; }
+.hero-judgement { min-height: 390px; justify-content: flex-start; padding-top: 18px; animation: none; }
+.judgement-location { margin-bottom: 18px; }
+.observation-toggle { min-height: 42px; border-color: rgba(197,230,225,.22); background: rgba(5,15,19,.72); }
+.observation-toggle small { color: #bfd5d0; font-size: .62rem; }
+.judgement-overline { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #f8d79d; font: 700 .62rem "Cormorant Garamond", serif; letter-spacing: .17em; }
+.judgement-overline b { padding: 4px 9px; border: 1px solid rgba(255,219,149,.55); border-radius: 3px; color: #ffe5ad; background: rgba(35,20,11,.77); font: 800 .7rem "Noto Sans JP", sans-serif; letter-spacing: .02em; }
+.judgement-temp-line { align-items: flex-end; margin: 12px 0 18px; }
+.judgement-temp { font-size: clamp(4.8rem, 22vw, 7rem); animation: none; text-shadow: 0 6px 24px rgba(0,0,0,.75); font-variant-numeric: tabular-nums; }
+.judgement-temp > span { display: block; margin: 0 0 8px 2px; color: #d9ede6; font: 700 .64rem "Noto Sans JP", sans-serif; letter-spacing: .07em; }
+.judgement-humidity { margin-bottom: 3px; border-color: rgba(148,220,207,.52); font-size: .7rem; }
+.hero-judgement .judgement-area { padding: 0; color: #ffe6a8; font-family: "Shippori Mincho", serif; font-size: clamp(2.02rem, 8.8vw, 4.2rem); font-weight: 800; line-height: 1.15; letter-spacing: -.03em; text-shadow: 0 4px 24px #000; animation: none; overflow-wrap: anywhere; }
+.judgement-area small { color: #fff3d3; font-size: .43em; vertical-align: .1em; }
+.judgement-field-reference { margin-top: 14px; padding: 8px 11px; border-top: 1px solid rgba(255,221,154,.33); border-bottom: 1px solid rgba(255,221,154,.33); color: #f1e5cd; font: 700 .64rem "Noto Sans JP", sans-serif; letter-spacing: .01em; line-height: 1.55; }
+.judgement-field-reference span { color: #ffd081; padding-inline: 2px; }
+.judgement-provenance { margin-top: 13px; }
+.judgement-provenance span { font-size: .63rem; }
+.judgement-provenance a { color: #c4f4ed; font-size: .67rem; }
+.hero-judgement .judgement-comment { max-width: 100%; margin-top: 14px; padding: 10px 12px; border-radius: 7px; color: #efe5d1; background: rgba(5,13,17,.74); font: 500 .72rem/1.65 "Noto Sans JP", sans-serif; }
+.judgement-comment::before,.judgement-comment::after { content: none; }
+.target-cast { margin-top: 18px; }
+.hero-meter { margin-top: 15px; }
+.hero-party img { animation-duration: 7s !important; }
+.job-marquee-track { animation-duration: 38s; }
+.quest-mark,.share-duty-art img,.share-duty-job { animation: none; }
+.share-duty-card { border-radius: 17px; }
+.share-duty-art img { transform: none; object-position: 68% center; filter: saturate(1.04) contrast(1.08) brightness(.8); }
+.share-duty-art span { background: linear-gradient(180deg, rgba(5,12,18,.08), rgba(5,12,18,.2) 38%, #071014 91%), linear-gradient(90deg, rgba(5,12,18,.68), transparent 90%); }
+.share-duty-copy > p:first-child { color: #f2c985; }
+.share-duty-copy h2 strong { font-family: "Shippori Mincho", serif; letter-spacing: -.025em; }
+.share-duty-copy button { box-shadow: 0 10px 26px rgba(0,0,0,.35); transition: transform .16s ease, filter .16s ease; }
+.share-duty-copy button:hover { filter: brightness(1.08); transform: translateY(-2px); }
+.share-duty-copy small { color: #c9d5cf; font-size: .62rem; }
+.section-title h2 { font-family: "Shippori Mincho", serif; font-size: 1.28rem; }
+.section-note { color: #c2d3d0; font-size: .76rem; }
+.weather-party-hud { border-radius: 13px; }
+.party-hud-head h2 { font-size: .78rem; }
+footer { color: #aebfba; font-size: .72rem; }
+footer small { font-size: .63rem; }
+@media (min-width: 680px) {
+  .hero { min-height: 900px; }
+  .hero-question { margin-top: 48px; }
+  .hero-judgement { min-height: 410px; }
+  .hero-wallpaper img { object-position: 58% 16%; }
+  .hero-judgement .judgement-comment { max-width: 80%; }
+}
+@media (max-width: 390px) {
+  .hero-brand .eyebrow { font-size: .48rem; }
+  .hero-brand h1 { font-size: .66rem; }
+  .hero-question strong { font-size: 6.5vw; }
+  .hero-quest-header p { display: none; }
+  .hero-quest-header h2 { font-size: .8rem; }
+  .hero-quest-header .difficulty { max-width: none; }
+  .hero-judgement .judgement-area { font-size: 8.4vw; }
+  .hero-judgement .judgement-comment { font-size: .68rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-party img,.job-marquee-track,.heat-haze { animation: none !important; }
+  .share-duty-copy button { transition: none; }
+}
