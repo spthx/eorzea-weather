@@ -1,113 +1,129 @@
-const appState = {
-  snapshot: null,
-  stations: [],
-  rankings: null,
-  current: null,
-  usedLocation: false,
-  rankingKind: "temperature"
-};
+const appState = { snapshot: null, stations: [], rankings: null, current: null, mode: "default", rankingKind: "temperature", busy: false };
 
 function stationById(id) {
-  return appState.stations.find(item => item.id === id) || null;
-}
-
-function decorateCurrent(station) {
-  if (!station) return null;
-  return { ...station, temperatureRank: rankOf(appState.rankings.temperature, station.id) };
-}
-
-function setLocationButtonState() {
-  UI.locationButton.textContent = appState.usedLocation ? "現在地を更新" : "現在地を登録";
+  return appState.stations.find(station => station.id === id && Number.isFinite(station.temperature)) || null;
 }
 
 function renderApp() {
-  const current = decorateCurrent(appState.current);
-  const kumagaya = stationById(CONFIG.kumagayaStationId);
-  const nationalTop = appState.rankings.temperature[0];
-  if (!current || !kumagaya || !nationalTop) throw new Error("比較に必要な観測地点が欠測しています。");
-  setObservation(appState.snapshot);
-  renderJudgement(current, appState.usedLocation);
-  renderCurrentCard(current, appState.usedLocation);
-  renderComparison(current, kumagaya, appState.rankings, appState.usedLocation);
-  renderWeatherParty(current, nationalTop, kumagaya, appState.usedLocation);
-  renderRanking(appState.rankingKind, appState.rankings, current.id);
-  renderAllStations(appState.rankings);
-  setLocationButtonState();
+  if (!appState.current) return;
+  renderCurrent(appState.current, appState.mode, appState.snapshot);
+  renderComparison(appState.current, appState.rankings);
+  renderRanking(appState.rankingKind, appState.rankings, appState.current.id, appState.snapshot);
 }
 
-function useRememberedStation() {
-  const stationId = readRememberedStationId();
-  if (!stationId) return false;
-  const remembered = stationById(stationId);
-  if (!remembered) {
-    clearRememberedLocationStation();
-    return false;
-  }
-  appState.current = { ...remembered, rememberedLocation: true };
-  appState.usedLocation = true;
-  renderApp();
-  return true;
-}
-
-async function loadWeather({ locationMode = "auto" } = {}) {
+async function loadWeather({ initial = false } = {}) {
+  if (appState.busy) return;
+  appState.busy = true;
   setLoading(true);
-  clearError();
+  showError("");
   try {
-    appState.snapshot = await fetchAmedasSnapshot();
-    appState.stations = enrichStations(normalizeStations(appState.snapshot));
-    appState.rankings = createRankings(appState.stations);
-    appState.current = stationById(appState.current?.id) || appState.rankings.temperature[0];
-    appState.usedLocation = false;
-    renderApp();
-    if (appState.snapshot.isCached) showError("最新データへ接続できなかったため、前回正常に取得した観測値を表示しています。観測時刻をご確認ください。");
-    if (locationMode === "remembered") useRememberedStation();
-    if (locationMode === "auto") {
-      const restored = useRememberedStation();
-      if (!restored && !automaticLocationDisabled()) await locateAndRender({ automatic: true });
+    const snapshot = await fetchAmedasSnapshot();
+    const stations = enrichStations(normalizeStations(snapshot));
+    const rankings = createRankings(stations);
+    if (!rankings.temperature.length) throw new Error("気温の観測値が見つかりませんでした。");
+    const previousId = appState.current?.id;
+    appState.snapshot = snapshot;
+    appState.stations = stations;
+    appState.rankings = rankings;
+    const saved = readRememberedSelection();
+    const chosen = stationById(previousId) || stationById(saved?.stationId);
+    if (chosen) {
+      appState.current = { ...chosen, ...(previousId === chosen.id && Number.isFinite(appState.current?.distanceKm) ? { distanceKm: appState.current.distanceKm } : {}) };
+      if (!previousId) appState.mode = saved.mode;
+    } else {
+      appState.current = stationById(CONFIG.defaultStationId) || rankings.temperature[0];
+      appState.mode = "default";
     }
-    playDutyIntro(decorateCurrent(appState.current));
+    renderStationOptions(stations);
+    renderApp();
+    if (snapshot.isCached || Date.now() - Date.parse(snapshot.latestTime) > 3 * 3600000) showError("過去の観測値を表示しています。観測時刻をご確認ください。最新情報は気象庁でも確認できます。");
+    if (initial && !chosen && !saved && !automaticLocationDisabled()) await locateAndRender(true);
   } catch (error) {
-    console.error(error);
-    showError(`${error.message || "観測値を取得できませんでした。"} 時間をおいて再度更新してください。`);
-    dismissDutyIntro();
+    showError((error.message || "観測値を取得できませんでした。") + " 時間をおいて「観測値を更新」を押してください。");
   } finally {
+    appState.busy = false;
     setLoading(false);
-    setLocationButtonState();
+    UI["station-select"].disabled = !appState.current;
+    UI["location-button"].disabled = !appState.stations.length;
   }
 }
 
-async function locateAndRender({ automatic = false } = {}) {
-  if (!appState.stations.length) return;
-  UI.locationButton.disabled = true;
-  UI.locationButton.textContent = "端末内で探索中…";
+async function locateAndRender(automatic = false) {
+  if (!appState.stations.length || (!automatic && appState.busy)) return;
+  if (!automatic) { appState.busy = true; setLoading(true); }
+  UI["location-button"].disabled = true;
+  UI["station-select"].disabled = true;
+  UI["location-status"].textContent = "端末内で最寄りの観測地点を探しています…";
   try {
     const position = await requestCurrentPosition();
     const nearest = nearestStation(position, appState.stations);
-    if (!nearest) throw new Error("最寄りの有効観測地点が見つかりませんでした。");
-    appState.current = appState.stations.find(item => item.id === nearest.id) || nearest;
-    appState.current = { ...appState.current, distanceKm: nearest.distanceKm };
-    appState.usedLocation = true;
-    rememberLocationStation(appState.current);
-    clearError();
+    if (!nearest) throw new Error("近くの観測地点を取得できませんでした。");
+    appState.current = nearest;
+    appState.mode = "live";
+    rememberLocationStation(nearest);
     renderApp();
   } catch (error) {
-    appState.usedLocation = false;
-    if (error?.code === 1) rememberLocationDenied();
-    if (!automatic || error?.code === 1) showError("位置情報を利用できなかったため、全国最高気温の観測地点を仮表示しています。許可しなくても比較とランキングは利用できます。");
+    if (error.code === 1) rememberLocationDenied();
+    UI["location-status"].textContent = "位置情報を利用できませんでした。下の一覧から観測地点を選べます。";
   } finally {
-    UI.locationButton.disabled = false;
-    setLocationButtonState();
+    if (!automatic) { appState.busy = false; setLoading(false); }
+    UI["location-button"].disabled = false;
+    UI["station-select"].disabled = false;
   }
 }
 
-UI.refreshButton.addEventListener("click", () => loadWeather({ locationMode: "remembered" }));
-UI.locationButton.addEventListener("click", () => locateAndRender({ automatic: false }));
+let typhoonBusy = false;
+async function loadTyphoons() {
+  if (typhoonBusy) return;
+  typhoonBusy = true;
+  UI["typhoon-refresh"].disabled = true;
+  UI["typhoon-status"].textContent = "気象庁の台風情報を確認しています…";
+  try { renderTyphoons(await fetchTyphoons()); }
+  catch (_) {
+    UI["typhoon-status"].textContent = "台風情報を取得できませんでした。";
+    UI["typhoon-list"].innerHTML = '<p class="notice error">台風がないことを意味する表示ではありません。下のリンクから気象庁の最新情報をご確認ください。</p>';
+  } finally {
+    typhoonBusy = false;
+    UI["typhoon-refresh"].disabled = false;
+  }
+}
+
+UI["refresh-button"].addEventListener("click", () => loadWeather());
+UI["location-button"].addEventListener("click", () => locateAndRender());
+UI["station-select"].addEventListener("change", event => {
+  const station = stationById(event.target.value);
+  if (!station) return;
+  appState.current = station;
+  appState.mode = "manual";
+  rememberLocationStation(station, "manual");
+  renderApp();
+});
+UI["typhoon-refresh"].addEventListener("click", loadTyphoons);
 document.querySelectorAll("[data-ranking]").forEach(button => button.addEventListener("click", () => {
   appState.rankingKind = button.dataset.ranking;
-  document.querySelectorAll("[data-ranking]").forEach(tab => tab.setAttribute("aria-selected", String(tab === button)));
-  if (appState.rankings && appState.current) renderRanking(appState.rankingKind, appState.rankings, appState.current.id);
+  document.querySelectorAll("[data-ranking]").forEach(tab => tab.setAttribute("aria-pressed", String(tab === button)));
+  if (appState.rankings) renderRanking(appState.rankingKind, appState.rankings, appState.current.id, appState.snapshot);
 }));
-
+UI["journey-temperature"].addEventListener("input", event => renderJourney(Number(event.target.value)));
+document.querySelectorAll("[data-temperature]").forEach(button => button.addEventListener("click", () => {
+  UI["journey-temperature"].value = button.dataset.temperature;
+  renderJourney(Number(button.dataset.temperature));
+}));
+UI["share-button"].addEventListener("click", async () => {
+  const station = appState.current;
+  if (!station) return;
+  const text = stationLabel(station) + "は" + station.temperature.toFixed(1) + "℃。今日は「" + station.scene.title + "」。 #エオルゼア天気帳 #FF14";
+  const url = "https://spthx.github.io/eorzea-weather/";
+  try {
+    if (navigator.share) await navigator.share({ title: "エオルゼア天気帳", text, url });
+    else await navigator.clipboard.writeText(text + " " + url);
+    UI["share-feedback"].textContent = navigator.share ? "共有しました。" : "共有文とリンクをコピーしました。";
+  } catch (error) {
+    if (error.name !== "AbortError") UI["share-feedback"].textContent = "共有できませんでした。ブラウザのアドレスをコピーしてお使いください。";
+  }
+});
+renderJourney(20);
 updateEorzeaTime();
 setInterval(updateEorzeaTime, 1000);
-loadWeather({ locationMode: "auto" });
+loadWeather({ initial: true });
+loadTyphoons();

@@ -1,321 +1,130 @@
-const UI = {
-  observationTime: document.getElementById("observation-time"),
-  refreshButton: document.getElementById("refresh-button"),
-  locationButton: document.getElementById("location-button"),
-  judgementHeading: document.getElementById("judgement-heading"),
-  climateWallpaper: document.getElementById("climate-wallpaper"),
-  judgement: document.getElementById("primary-judgement"),
-  difficulty: document.getElementById("difficulty-badge"),
-  threatScore: document.getElementById("threat-score"),
-  threatBar: document.getElementById("threat-bar"),
-  targetCastName: document.getElementById("target-cast-name"),
-  targetCastValue: document.getElementById("target-cast-value"),
-  targetCastBar: document.getElementById("target-cast-bar"),
-  statusEffects: document.getElementById("status-effects"),
-  limitGauge: document.getElementById("limit-gauge"),
-  eorzeaTime: document.getElementById("eorzea-time"),
-  weatherPartyList: document.getElementById("weather-party-list"),
-  currentCard: document.getElementById("current-card"),
+const UI = Object.fromEntries(["current-weather","location-button","refresh-button","location-status","weather-error","scene-wallpaper","station-select","comparison-grid","ranking-list","ranking-note","ranking-time","share-button","share-summary","share-feedback","typhoon-status","typhoon-list","typhoon-refresh","journey-temperature","journey-value","journey-result","eorzea-time"].map(id => [id, document.getElementById(id)]));
 
+function localDate(value) {
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? new Intl.DateTimeFormat("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(date) : "時刻不明";
+}
 
-  comparisonGrid: document.getElementById("comparison-grid"),
-  comparisonNote: document.getElementById("comparison-note"),
-  battleVerdict: document.getElementById("battle-verdict"),
-  rankingList: document.getElementById("ranking-list"),
-  rankingNote: document.getElementById("ranking-note"),
-  allStationsList: document.getElementById("all-stations-list"),
-  stationSummary: document.getElementById("station-summary"),
-  errorPanel: document.getElementById("error-panel"),
-  shareDutyName: document.getElementById("share-duty-name"),
-  shareDutyTier: document.getElementById("share-duty-tier"),
-  shareDutyScore: document.getElementById("share-duty-score"),
-  shareDutyDetail: document.getElementById("share-duty-detail"),
-  shareDutyButton: document.getElementById("share-duty-button"),
-  shareDutyFeedback: document.getElementById("share-duty-feedback"),
-  dutyIntro: document.getElementById("duty-intro"),
-  dutyIntroStatus: document.getElementById("duty-intro-status"),
-  dutyIntroTemp: document.getElementById("duty-intro-temp"),
-  dutyIntroClass: document.getElementById("duty-intro-class"),
-  dutyIntroEnemy: document.getElementById("duty-intro-enemy")
-};
-
-const JOB_ART = [
-  "assets/fankit/job-paladin.png", "assets/fankit/job-darkknight.png", "assets/fankit/job-blackmage.png",
-  "assets/fankit/job-04.png", "assets/fankit/job-05.png", "assets/fankit/job-06.png", "assets/fankit/job-07.png",
-  "assets/fankit/job-08.png", "assets/fankit/job-09.png", "assets/fankit/job-10.png", "assets/fankit/job-11.png", "assets/fankit/job-12.png"
-];
-
-function jobArtForClimate(category) {
-  return ({ dry: JOB_ART[2], still: JOB_ART[2], humid: JOB_ART[4], cold: JOB_ART[1], wind: JOB_ART[6], comfort: JOB_ART[0] })[category] || JOB_ART[3];
+function stationLabel(station) {
+  return [station.prefecture, station.stationName].filter(Boolean).join("・");
 }
 
 function setLoading(active) {
-  UI.refreshButton.disabled = active;
-  UI.locationButton.disabled = active;
-  UI.refreshButton.setAttribute("aria-busy", String(active));
+  UI["refresh-button"].disabled = active;
+  UI["location-button"].disabled = active;
+  UI["station-select"].disabled = active;
+  UI["refresh-button"].textContent = active ? "更新中…" : "観測値を更新";
 }
 
-function setObservation(snapshot) {
-  const cacheText = snapshot.isCached ? " / 前回取得データ" : " / LIVE";
-  UI.observationTime.textContent = `観測時刻 ${formatObservationTime(snapshot.latestTime)}${cacheText}`;
+function showError(message) {
+  UI["weather-error"].hidden = !message;
+  UI["weather-error"].textContent = message || "";
 }
 
-function setDutyWallpaper(nextWallpaper) {
-  if (!UI.climateWallpaper || !nextWallpaper || UI.climateWallpaper.getAttribute("src") === nextWallpaper) return;
-  UI.climateWallpaper.classList.add("is-switching");
-  const reveal = () => requestAnimationFrame(() => UI.climateWallpaper.classList.remove("is-switching"));
-  window.setTimeout(() => {
-    UI.climateWallpaper.addEventListener("load", reveal, { once: true });
-    UI.climateWallpaper.src = nextWallpaper;
-    if (UI.climateWallpaper.complete) reveal();
-  }, 180);
-}
-function heatDayClassForTemperature(temperature) {
-  if (!Number.isFinite(temperature)) return "暑熱判定中";
-  if (temperature >= 40) return "酷暑日級";
-  if (temperature >= 35) return "猛暑日級";
-  if (temperature >= 30) return "真夏日級";
-  if (temperature <= 5) return "寒冷帯";
-  return "通常帯";
+function renderCurrent(station, mode, snapshot) {
+  const scene = station.scene;
+  document.body.dataset.weatherTone = scene.tone;
+  if (UI["scene-wallpaper"].getAttribute("src") !== scene.wallpaper) UI["scene-wallpaper"].src = scene.wallpaper;
+  const locationText = mode === "live" ? "現在地に最も近い、気温を観測している地点です。"
+    : mode === "remembered" ? "この端末に保存した現在地付近の観測地点です。"
+    : mode === "manual" ? "選択した観測地点の天気を表示しています。"
+    : station.id === CONFIG.defaultStationId ? "現在地は未設定です。東京の観測値を表示しています。"
+    : "現在地は未設定です。取得できた観測地点を仮表示しています。";
+  UI["location-status"].textContent = locationText;
+  UI["location-button"].textContent = mode === "live" || mode === "remembered" ? "現在地を更新" : "現在地の天気を見る";
+  const distance = Number.isFinite(station.distanceKm) ? " ／ 現在地から約" + station.distanceKm.toFixed(1) + "km" : "";
+  const age = Date.now() - Date.parse(snapshot.latestTime);
+  const stale = snapshot.isCached || age > 3 * 3600000;
+  const metrics = [
+    ["湿度", formatInteger(station.humidity, "％")],
+    ["風速", formatValue(station.windSpeed, "m/s")],
+    ["1時間の降水量", formatValue(station.precipitation1h, "mm")],
+    ["積雪の深さ", formatInteger(station.snowDepth, "cm")]
+  ];
+  UI["current-weather"].innerHTML =
+    '<details class="station-details"><summary>' + safeText(station.prefecture || station.stationName) + '</summary><p>' + safeText(station.municipality || "") + '<br>アメダス観測地点：' + safeText(station.stationName + distance) + '</p></details>' +
+    '<p class="observation-stamp">' + safeText(formatObservationTime(snapshot.latestTime)) + ' 観測（日本時間）' + (stale ? ' ／ 過去の観測値' : '') + '</p>' +
+    '<div class="temperature-row"><div class="temperature">' + station.temperature.toFixed(1) + '<small>℃</small></div><span class="thermal-label">' + safeText(scene.label) + '</span></div>' +
+    '<div class="scene-enter"><h2 class="scene-name">' + safeText(scene.title) + '</h2><p class="scene-description">' + safeText(scene.description) + '</p></div>' +
+    '<div class="scene-meta"><span>このたとえの気温帯：' + safeText(scene.range) + '</span><a href="' + safeText(scene.sourceUrl) + '" target="_blank" rel="noopener">' + safeText(scene.sourceTitle) + ' ↗</a></div>' +
+    '<dl class="weather-metrics">' + metrics.map(pair => '<div><dt>' + pair[0] + '</dt><dd>' + safeText(pair[1]) + '</dd></div>').join("") + '</dl>' +
+    '<p class="condition-line">' + safeText(observedConditions(station)) + '</p>';
+  UI["share-summary"].textContent = stationLabel(station) + "は" + station.temperature.toFixed(1) + "℃。「" + scene.title + "」";
+  UI["share-button"].disabled = false;
+  UI["station-select"].value = station.id;
 }
 
-function dutyLabel(duty) {
-  return duty.outOfRange ? duty.name : `${duty.name}級`;
+function renderStationOptions(stations) {
+  const groups = new Map();
+  stations.filter(s => Number.isFinite(s.temperature)).forEach(station => {
+    const key = station.prefecture || "その他の観測地点";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(station);
+  });
+  UI["station-select"].innerHTML = [...groups].map(([prefecture, list]) =>
+    '<optgroup label="' + safeText(prefecture) + '">' + list.sort((a, b) => a.stationName.localeCompare(b.stationName, "ja")).map(s => '<option value="' + safeText(s.id) + '">' + safeText(s.stationName) + '</option>').join("") + '</optgroup>'
+  ).join("");
 }
 
-function playDutyIntro(station) {
-  if (!UI.dutyIntro || UI.dutyIntro.dataset.played === "true") return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    UI.dutyIntro.hidden = true;
-    UI.dutyIntro.dataset.played = "true";
+function renderComparison(current, rankings) {
+  const cards = [
+    ["表示中の地点", current],
+    ["全国で最も気温が高い地点", rankings.temperature[0]],
+    ["全国で最も気温が低い地点", rankings.cold[0]]
+  ];
+  UI["comparison-grid"].innerHTML = cards.filter(pair => pair[1]).map(([label, s]) =>
+    '<article class="place-card"><span>' + label + '</span><h3>' + safeText(stationLabel(s)) + '</h3><p class="place-temp">' + s.temperature.toFixed(1) + '<small>℃</small></p><p>' + safeText(s.scene.title) + '</p><p>湿度 ' + formatInteger(s.humidity, "％") + ' ／ 風速 ' + formatValue(s.windSpeed, "m/s") + '</p></article>'
+  ).join("");
+}
+
+function renderRanking(kind, rankings, selectedId, snapshot) {
+  const fields = { temperature: "temperature", cold: "temperature", rain: "precipitation1h", wind: "windSpeed" };
+  const units = { temperature: "℃", cold: "℃", rain: "mm", wind: "m/s" };
+  const notes = { temperature: "同じ観測時刻の気温が高い順です。日最高気温の順位ではありません。", cold: "同じ観測時刻の気温が低い順です。日最低気温の順位ではありません。", rain: "直近1時間の降水量が多い順です。観測がある地点だけを表示します。", wind: "観測時刻の風速が強い順です。最大瞬間風速ではありません。" };
+  const ranking = rankings[kind];
+  const field = fields[kind];
+  UI["ranking-time"].textContent = localDate(snapshot.latestTime) + " 観測（日本時間）";
+  UI["ranking-note"].textContent = notes[kind] + " 同じ値は同順位です。";
+  const entries = ranking.slice(0, CONFIG.rankingLimit);
+  const current = ranking.find(s => s.id === selectedId);
+  if (current && !entries.includes(current)) entries.push(current);
+  UI["ranking-list"].innerHTML = entries.length ? entries.map(s => {
+    const rank = ranking.findIndex(item => item[field] === s[field]) + 1;
+    return '<li class="rank-row' + (s.id === selectedId ? ' is-current' : '') + '"><span class="rank-number">' + rank + '</span><div class="rank-place"><strong>' + safeText(stationLabel(s)) + (s.id === selectedId ? '（表示中）' : '') + '</strong><small>' + safeText(s.scene.title) + '</small></div><span class="rank-value">' + s[field].toFixed(1) + '<small>' + units[kind] + '</small></span></li>';
+  }).join("") : '<li class="notice">この項目の観測値を取得できませんでした。</li>';
+}
+
+function renderJourney(temperature) {
+  const scene = describeWeather({ temperature });
+  UI["journey-value"].textContent = temperature.toFixed(1) + "℃";
+  UI["journey-result"].innerHTML = '<h3>' + safeText(scene.title) + '</h3><p>' + safeText(scene.description) + '</p><p>気温帯：' + safeText(scene.range) + ' ／ これはプレビューです。</p><a href="' + safeText(scene.sourceUrl) + '" target="_blank" rel="noopener">出典：' + safeText(scene.sourceTitle) + ' ↗</a>';
+}
+
+function typhoonValue(value, unit) {
+  return value !== null && value !== undefined && value !== "" && value !== "-" && Number.isFinite(Number(value)) ? safeText(value) + '<small>' + unit + '</small>' : "発表なし";
+}
+
+function renderTyphoons(data) {
+  const failed = data.items.filter(item => !item.available).length;
+  UI["typhoon-status"].textContent = localDate(data.fetchedAt) + " 取得（日本時間） ／ 気象庁の掲載情報 " + data.items.length + "件" + (failed ? " ／ " + failed + "件の詳細を取得できませんでした。" : "");
+  if (!data.items.length) {
+    UI["typhoon-list"].innerHTML = '<p class="notice">取得した気象庁の一覧には、台風・熱帯低気圧が掲載されていません。</p>';
     return;
   }
-  const duty = station?.analysis?.battleDuty;
-  const temperature = station?.temperature;
-  UI.dutyIntroTemp.textContent = Number.isFinite(temperature) ? temperature.toFixed(1) : "--.-";
-  UI.dutyIntroClass.textContent = heatDayClassForTemperature(temperature);
-  UI.dutyIntroEnemy.textContent = duty ? dutyLabel(duty) : "観測データ確認完了";
-  UI.dutyIntroStatus.textContent = "CURRENT TEMPERATURE LOCKED";
-  UI.dutyIntro.dataset.played = "true";
-  requestAnimationFrame(() => requestAnimationFrame(() => UI.dutyIntro.classList.add("is-resolved")));
-  window.setTimeout(() => UI.dutyIntro.classList.add("is-finished"), 1550);
-  window.setTimeout(() => { UI.dutyIntro.hidden = true; }, 1950);
-}
-
-function dismissDutyIntro() {
-  if (!UI.dutyIntro) return;
-  UI.dutyIntro.classList.add("is-finished");
-  window.setTimeout(() => { UI.dutyIntro.hidden = true; }, 350);
-}
-
-function renderJudgement(station, usedLocation) {
-  const a = station.analysis;
-  const duty = a.battleDuty;
-  document.body.className = bodyClimateClass(a);
-  document.documentElement.style.setProperty("--heat-opacity", String(Math.min(.58, a.threat / 170)));
-  const nextWallpaper = duty.wallpaper || a.wallpaper || "assets/wallpapers/heavens.jpg";
-  document.body.dataset.dutyEra = duty.eraCode || "unknown";
-  setDutyWallpaper(nextWallpaper);
-  const prefectureName = station.prefecture || station.stationName || "観測地点";
-  const municipalityName = station.municipality || station.stationName || "所在地情報なし";
-  const distanceText = Number.isFinite(station.distanceKm) ? `現在地から約${station.distanceKm.toFixed(1)}km` : station.rememberedLocation ? "端末に保存した最寄り観測地点" : "位置情報未使用・全国最高気温地点を仮表示";
-  const stationDetail = `${station.prefecture || "所在地情報なし"} ${municipalityName} ／ アメダス観測地点 ${station.stationName} ／ ${distanceText}`;
-  UI.judgementHeading.textContent = "酷炎天迎撃戦";
-  UI.difficulty.textContent = duty.tier;
-  UI.difficulty.title = duty.code;
-  UI.difficulty.dataset.level = a.difficulty;
-  UI.threatScore.textContent = a.threat;
-  requestAnimationFrame(() => { UI.threatBar.style.width = `${a.threat}%`; });
-  UI.targetCastName.textContent = a.climate.replace("（独自判定）", "");
-  UI.targetCastValue.textContent = `${a.threat}%`;
-  requestAnimationFrame(() => { UI.targetCastBar.style.width = `${Math.max(8, a.threat)}%`; });
-  [...UI.limitGauge.children].forEach((segment, index) => {
-    const fill = Math.max(0, Math.min(100, (a.threat - index * 33.34) * 3));
-    segment.style.setProperty("--gauge-fill", `${fill}%`);
-  });
-  UI.judgement.innerHTML = `
-    <div class="judgement-location">
-      <button class="observation-toggle" type="button" aria-expanded="false" aria-controls="observation-detail" aria-label="${safeText(prefectureName)}の詳しい観測地点を表示"><span>${safeText(prefectureName)}</span><i aria-hidden="true">⌄</i><small>観測地点を表示</small></button>
-      <div id="observation-detail" class="observation-detail" hidden><span>${safeText(stationDetail)}</span></div>
-    </div>
-    <div class="judgement-overline"><span>BOSS ENCOUNTER</span><b>${safeText(heatDayClassForTemperature(station.temperature))}</b></div>
-    <div class="judgement-temp-line"><div class="judgement-temp"><span>${usedLocation ? "最寄り観測地点の気温" : "全国最高気温地点を仮表示"}</span>${Number.isFinite(station.temperature) ? station.temperature.toFixed(1) : "--"}<small>℃</small></div><span class="judgement-humidity">湿度 ${formatInteger(station.humidity, "％")}</span></div>
-    <h3 class="judgement-area">${safeText(duty.name)}${duty.outOfRange ? "" : "<small>級</small>"}</h3>
-    <p class="judgement-field-reference">独自の暑さ換算 ${Number.isFinite(duty.heatScore) ? duty.heatScore.toFixed(1) : "--"}℃ <span>→</span> ${safeText(duty.range || "31.0℃未満")}の判定</p>
-    <div class="judgement-provenance"><span>${safeText(duty.tier)}</span><span class="era-badge">${safeText(duty.era || "実装時代不明")}</span>${duty.sourceUrl ? `<a href="${duty.sourceUrl}" target="_blank" rel="noopener">${safeText(duty.sourceTitle)} ↗</a>` : `<span>独自判定</span>`}</div>
-    <p class="judgement-comment">${safeText(duty.briefing)}</p>`;
-  const observationToggle = UI.judgement.querySelector(".observation-toggle");
-  const observationDetail = UI.judgement.querySelector(".observation-detail");
-  observationToggle?.addEventListener("click", () => {
-    const expanded = observationToggle.getAttribute("aria-expanded") === "true";
-    observationToggle.setAttribute("aria-expanded", String(!expanded));
-    observationToggle.setAttribute("aria-label", expanded ? `${prefectureName}の詳しい観測地点を表示` : `${prefectureName}の詳しい観測地点を閉じる`);
-    observationToggle.classList.toggle("is-open", !expanded);
-    observationDetail.hidden = expanded;
-    observationToggle.querySelector("small").textContent = expanded ? "観測地点を表示" : "詳細を閉じる";
-  });
-  renderShareDuty(station, usedLocation);
-  renderStatusEffects(station);
-
-}
-
-function renderShareDuty(station, usedLocation) {
-  if (!UI.shareDutyButton || !station.analysis?.battleDuty) return;
-  const duty = station.analysis.battleDuty;
-  const temp = Number.isFinite(station.temperature) ? station.temperature.toFixed(1) : "--";
-  UI.shareDutyName.textContent = dutyLabel(duty);
-  UI.shareDutyTier.textContent = heatDayClassForTemperature(station.temperature) + " / " + duty.tier;
-  UI.shareDutyScore.textContent = temp + "℃";
-  UI.shareDutyDetail.textContent = `実測${temp}℃、独自の暑さ換算${Number.isFinite(duty.heatScore) ? duty.heatScore.toFixed(1) : "--"}℃。${duty.briefing}`;
-  UI.shareDutyButton.onclick = async () => {
-    const url = location.origin + location.pathname;
-    const text = (usedLocation ? "最寄りの観測地点は" : "全国最高気温地点は") + temp + "℃。" + heatDayClassForTemperature(station.temperature) + "、" + dutyLabel(duty) + "。 #酷炎天迎撃戦 #FF14";
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "酷炎天迎撃戦", text, url });
-        UI.shareDutyFeedback.textContent = "リンクを共有しました。";
-      } else {
-        await navigator.clipboard.writeText(text + " " + url);
-        UI.shareDutyFeedback.textContent = "共有文とリンクをコピーしました。";
-      }
-    } catch (error) {
-      if (error?.name !== "AbortError") UI.shareDutyFeedback.textContent = "共有できませんでした。URLをコピーしてお使いください。";
-    }
-  };
-}
-
-function renderStatusEffects(station) {
-  const a = station.analysis;
-  const effects = [
-    { icon: station.temperature >= 28 ? "♨" : station.temperature <= 5 ? "❄" : "✦", label: station.temperature >= 28 ? "灼熱" : station.temperature <= 5 ? "寒冷" : "平常", value: formatValue(station.temperature, "℃"), type: station.temperature >= 28 || station.temperature <= 5 ? "debuff" : "buff" },
-    { icon: "◆", label: a.attribute.replace(/属性.*/, "属性"), value: formatInteger(station.humidity, "％"), type: Number.isFinite(station.humidity) && station.humidity >= 70 ? "debuff" : "buff" },
-    { icon: "≋", label: a.wind, value: formatValue(station.windSpeed, "m/s"), type: Number.isFinite(station.windSpeed) && station.windSpeed >= 6 ? "debuff" : "buff" },
-    { icon: "☂", label: a.precipitation, value: Number.isFinite(station.precipitation1h) ? `${station.precipitation1h.toFixed(1)}mm` : "LIVE", type: Number.isFinite(station.precipitation1h) && station.precipitation1h > 0 ? "debuff" : "buff" }
-  ];
-  UI.statusEffects.innerHTML = effects.map(effect => `<article class="status-effect ${effect.type}"><i>${effect.icon}</i><span>${safeText(effect.label)}</span><b>${safeText(effect.value)}</b></article>`).join("");
-}
-
-function renderWeatherParty(current, nationalTop, kumagaya, usedLocation) {
-  const members = [
-    { role: "T", name: usedLocation ? "YOU / CURRENT" : "CURRENT SLOT", station: current, art: JOB_ART[0], preview: !usedLocation },
-    { role: "H", name: "NATIONAL TOP", station: nationalTop, art: JOB_ART[4] },
-    { role: "D", name: "KUMAGAYA", station: kumagaya, art: JOB_ART[2] },
-    { role: "D", name: "DUTY ARCHIVE", station: current, art: JOB_ART[7], archive: true }
-  ];
-  UI.weatherPartyList.innerHTML = members.map(member => {
-    const hp = member.archive || member.preview ? 100 : Math.max(8, 100 - member.station.analysis.threat);
-    const mp = member.archive ? 100 : member.preview ? 0 : (Number.isFinite(member.station.humidity) ? Math.min(100, member.station.humidity) : 0);
-    const detail = member.archive ? `${HEAT_DUTIES.length - 1} HEAT BANDS / 0.5℃ STEPS` : member.preview ? "現在地を登録すると観測地点に切替" : `${member.station.temperature.toFixed(1)}℃ / ${dutyLabel(member.station.analysis.battleDuty)}`;
-    return `<article class="party-member ${member === members[0] ? "is-you" : ""}">
-      <span class="party-role role-${member.role.toLowerCase()}">${member.role}</span><img src="${member.art}" alt=""><div class="party-member-info"><strong>${safeText(member.name)}</strong><small>${safeText(detail)}</small><div class="party-bars"><i style="--party-hp:${hp}%"></i><b style="--party-mp:${mp}%"></b></div></div><em>${hp}%</em>
-    </article>`;
+  UI["typhoon-list"].innerHTML = data.items.map(item => {
+    if (!item.available) return '<article class="typhoon-card"><h3>' + safeText(item.title) + '</h3><p>詳細を取得できませんでした。公式の進路図をご確認ください。</p><p class="issue">一覧の発表時刻：' + safeText(localDate(item.issuedAt)) + '</p></article>';
+    const c = item.current;
+    const motion = c.speed?.note?.jp
+      ? safeText((c.course ? c.course + "へ" : "") + c.speed.note.jp)
+      : safeText(c.course || "方向不明") + "へ " + typhoonValue(c.speed?.["km/h"], "km/h");
+    const intensity = [c.category?.jp, c.scale && c.scale !== "-" ? c.scale : "", c.intensity && c.intensity !== "-" ? c.intensity : ""].filter(Boolean).join(" ／ ");
+    const old = Date.now() - Date.parse(item.issuedAt) > 12 * 3600000;
+    const forecast = item.forecasts.map(f => '<li><time>' + safeText(localDate(f.validtime?.JST)) + ' 予報</time>' + safeText(f.location || "位置情報なし") + ' ／ ' + safeText(f.category?.jp || "") + '<br>中心気圧 ' + typhoonValue(f.pressure, "hPa") + ' ／ 最大風速 ' + typhoonValue(f.maximumWind?.sustained?.["m/s"], "m/s") + '</li>').join("");
+    return '<article class="typhoon-card"><h3>' + safeText(item.title) + '</h3><span class="intensity">' + safeText(intensity || "勢力の発表なし") + '</span><p>' + safeText(c.location || "位置情報なし") + ' ／ ' + motion + '</p><dl class="typhoon-stats"><div><dt>中心気圧</dt><dd>' + typhoonValue(c.pressure, "hPa") + '</dd></div><div><dt>最大風速</dt><dd>' + typhoonValue(c.maximumWind?.sustained?.["m/s"], "m/s") + '</dd></div><div><dt>最大瞬間風速</dt><dd>' + typhoonValue(c.maximumWind?.gust?.["m/s"], "m/s") + '</dd></div></dl><p class="issue">実況：' + safeText(localDate(c.validtime.JST)) + ' ／ 発表：' + safeText(localDate(item.issuedAt)) + '（日本時間）</p>' + (old ? '<p class="stale">発表から12時間以上経過しています。最新情報を気象庁で確認してください。</p>' : '') + (forecast ? '<details><summary>今後の予報を見る</summary><ul class="forecast-list">' + forecast + '</ul></details>' : '') + '</article>';
   }).join("");
 }
 
 function updateEorzeaTime() {
-  if (!UI.eorzeaTime) return;
-  const eorzeaSeconds = Math.floor(Date.now() / 1000 * (3600 / 175)) % 86400;
-  const hours = Math.floor(eorzeaSeconds / 3600);
-  const minutes = Math.floor((eorzeaSeconds % 3600) / 60);
-  UI.eorzeaTime.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  const seconds = Math.floor(Date.now() / 1000 * (3600 / 175)) % 86400;
+  UI["eorzea-time"].textContent = String(Math.floor(seconds / 3600)).padStart(2, "0") + ":" + String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
 }
-
-function weatherGlyph(station) {
-  if (Number.isFinite(station.precipitation1h) && station.precipitation1h >= 10) return "☂";
-  if (station.temperature <= 5) return "❄";
-  if (Number.isFinite(station.windSpeed) && station.windSpeed >= 6) return "≋";
-  if (station.temperature >= 30) return "☀";
-  return "✦";
-}
-
-function renderCurrentCard(station, usedLocation) {
-  const locationText = station.prefecture ? `${station.prefecture}・${station.municipality || station.stationName}` : station.stationName;
-  const distance = usedLocation && Number.isFinite(station.distanceKm)
-    ? `現在地から約${station.distanceKm.toFixed(0)}km`
-    : station.rememberedLocation
-      ? "端末に保存した最寄りの観測地点"
-      : "位置情報未使用：全国最高気温地点を仮表示中";
-  UI.currentCard.innerHTML = `
-    <img class="current-job-art" src="${jobArtForClimate(station.analysis.category)}" alt="FFXIVファンキットのジョブ・ピクセルアート">
-    <div class="station-head">
-      <p class="station-kicker">${usedLocation ? "NEAREST AMEDAS STATION" : "NATIONAL HEAT TOP / PREVIEW"}</p>
-      <h3 class="station-title">${safeText(locationText)}<br><small>観測地点：${safeText(station.stationName)}</small></h3>
-      <p class="station-distance">⌖ ${safeText(distance)}</p>
-    </div>
-    <div class="status-core"><div class="main-temp">${Number.isFinite(station.temperature) ? station.temperature.toFixed(1) : "--"}<small>℃</small></div><div class="weather-glyph" aria-hidden="true">${weatherGlyph(station)}</div></div>
-    <div class="stat-grid">
-      <div class="stat"><span>湿度 / HUMIDITY</span><strong>${formatInteger(station.humidity, "％")}</strong></div>
-      <div class="stat"><span>風 / WIND</span><strong>${formatValue(station.windSpeed, "m/s")} ${safeText(windDirectionLabel(station.windDirection))}</strong></div>
-      <div class="stat"><span>1時間降水 / RAIN</span><strong>${formatValue(station.precipitation1h, "mm")}</strong></div>
-      <div class="stat"><span>全国気温順位 / RANK</span><strong>${station.temperatureRank ? `${station.temperatureRank}位` : "対象外"}</strong></div>
-    </div>
-    <p class="status-source">この値は現在地そのものではなく、選ばれたアメダス観測地点の観測値です。湿度などが欠測の場合は0にせず「観測なし」と表示します。</p>`;
-}
-
-function comparisonCard(station, role, ranking, usedLocation) {
-  const a = station.analysis;
-  const tempRank = rankOf(ranking.temperature, station.id);
-  const badge = role === "YOU" ? (usedLocation ? "現在地側" : "全国最高気温地点") : "熊谷";
-  const roleArt = role === "YOU" ? JOB_ART[7] : JOB_ART[2];
-  return `<article class="comparison-card ${role === "YOU" ? "featured" : ""}" data-rank="${tempRank || "–"}">
-    <img class="combatant-avatar" src="${roleArt}" alt="FFXIVファンキットのジョブ・ピクセルアート">
-    <div class="combatant-label"><span>${role === "YOU" && !usedLocation ? "TOP" : role}</span><b>${badge}</b></div>
-    <h3 class="combatant-place">${safeText(station.prefecture || "現在地周辺")}・${safeText(station.municipality || station.stationName)}<small>観測地点 ${safeText(station.stationName)} / 全国${tempRank || "–"}位</small></h3>
-    <p class="combatant-temp">${Number.isFinite(station.temperature) ? station.temperature.toFixed(1) : "--"}<small>℃</small></p>
-    <p class="combatant-climate">${safeText(a?.battleDuty ? dutyLabel(a.battleDuty) : "判定不能")}<br>${safeText(a?.climate || "データ不足")}</p>
-    <div class="mini-stats"><span>湿度<b>${formatInteger(station.humidity,"％")}</b></span><span>風速<b>${formatValue(station.windSpeed,"m/s")}</b></span><span>独自強度<b>${a?.threat ?? "--"}</b></span><span>演出難易度<b>${a?.difficulty || "--"}</b></span></div>
-  </article>`;
-}
-
-function renderComparison(current, kumagaya, rankings, usedLocation) {
-  UI.comparisonNote.textContent = usedLocation
-    ? "現在地付近と熊谷を、同じ観測時刻の気温・湿度で比較します。"
-    : "位置情報未使用のため、全国最高気温地点と熊谷を比較しています。";
-  UI.comparisonGrid.innerHTML = [comparisonCard(current, "YOU", rankings, usedLocation), comparisonCard(kumagaya, "KUMAGAYA", rankings, usedLocation)].join("");
-  const fighters = [current, kumagaya];
-  const fireWinner = fighters.filter(x => Number.isFinite(x.temperature)).sort((a,b) => b.temperature - a.temperature)[0];
-  const humidWinner = fighters.filter(x => Number.isFinite(x.humidScore)).sort((a,b) => b.humidScore - a.humidScore)[0];
-  const threatWinner = [...fighters].sort((a,b) => b.analysis.threat - a.analysis.threat)[0];
-  const curVsKumagaya = current.temperature - kumagaya.temperature;
-  const firstLabel = usedLocation ? "現在地側" : "全国最高気温地点";
-  const diffText = Math.abs(curVsKumagaya) < .05 ? `${firstLabel}と熊谷は同温` : `${curVsKumagaya > 0 ? firstLabel : "熊谷"}が${Math.abs(curVsKumagaya).toFixed(1)}℃高い`;
-  UI.battleVerdict.innerHTML = `<strong>総合判定：${safeText(threatWinner.prefecture || threatWinner.stationName)}が環境ギミック首位</strong>気温は${safeText(fireWinner.prefecture || fireWinner.stationName)}、独自湿熱値は${safeText(humidWinner?.prefecture || "比較不能")}が上位。${safeText(diffText)}。ギミック強度は気温・湿度・風・降水を組み合わせた演出値です。`;
-}
-
-function rankingMeta(kind, item) {
-  if (kind === "humid") return { value: item.humidScore.toFixed(1), unit: "独自湿熱値", note: `${formatValue(item.temperature,"℃")} / ${formatInteger(item.humidity,"％")}` };
-  if (kind === "threat") return { value: item.analysis.threat, unit: `演出${item.analysis.difficulty}`, note: `${formatValue(item.temperature,"℃")} / ${item.analysis.climate}` };
-  return { value: item.temperature.toFixed(1), unit: "℃", note: `${formatInteger(item.humidity,"％")} / ${dutyLabel(item.analysis.battleDuty)}` };
-}
-
-function renderRanking(kind, rankings, targetId) {
-  const ranking = rankings[kind];
-  const featured = featuredRanking(ranking, targetId);
-  const notes = {
-    temperature: "全国の有効観測地点を、同一観測時刻の気温順で表示します。",
-    humid: "気温と湿度が揃う地点のみ。気温＋湿度補正によるサイト独自の湿熱値です。",
-    threat: "気温・湿度・風・降水から算出した演出専用値。公的・医学的指標ではありません。"
-  };
-  UI.rankingNote.textContent = notes[kind];
-  UI.rankingList.innerHTML = featured.map((item, index) => {
-    const rank = rankOf(ranking, item.id);
-    const meta = rankingMeta(kind, item);
-    const markers = [item.id === targetId ? "is-target" : "", item.id === CONFIG.kumagayaStationId ? "is-kumagaya" : ""].join(" ");
-    return `<article class="rank-card ${markers}"><span class="rank-number">${rank}</span><img class="rank-job-art" src="${JOB_ART[index % JOB_ART.length]}" alt=""><div class="rank-info"><strong>${safeText(item.prefecture || "所在地情報なし")}・${safeText(item.municipality || item.stationName)}</strong><small>観測地点 ${safeText(item.stationName)} / ${safeText(meta.note)}</small></div><div class="rank-value">${safeText(meta.value)}<small>${safeText(meta.unit)}</small></div></article>`;
-  }).join("");
-}
-
-function renderAllStations(rankings) {
-  const ranking = rankings.temperature;
-  const kumagayaRank = rankOf(ranking, CONFIG.kumagayaStationId);
-  const hotter = kumagayaRank ? kumagayaRank - 1 : 0;
-  UI.stationSummary.textContent = `${ranking.length}地点 / 熊谷${kumagayaRank || "–"}位 / 熊谷超え${hotter}地点`;
-  UI.allStationsList.innerHTML = ranking.map((item, index) => `<article class="all-station-row"><em>${index + 1}</em><span><b>${safeText(item.prefecture || "所在地情報なし")}・${safeText(item.municipality || item.stationName)}</b><small>${safeText(item.stationName)} / ${safeText(dutyLabel(item.analysis.battleDuty))}</small></span><strong>${item.temperature.toFixed(1)}℃</strong></article>`).join("");
-}
-
-function showError(message) {
-  UI.errorPanel.hidden = false;
-  UI.errorPanel.textContent = message;
-}
-
-function clearError() { UI.errorPanel.hidden = true; UI.errorPanel.textContent = ""; }

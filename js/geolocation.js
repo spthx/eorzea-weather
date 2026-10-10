@@ -5,12 +5,19 @@ function requestCurrentPosition() {
   });
 }
 
-function rememberLocationStation(station) {
+function rememberLocationStation(station, mode = "location") {
   if (!station?.id) return;
   try {
-    localStorage.setItem(CONFIG.locationStationKey, JSON.stringify({ stationId: station.id, savedAt: Date.now() }));
-    localStorage.setItem(CONFIG.locationDecisionKey, "granted");
+    localStorage.setItem(CONFIG.locationStationKey, JSON.stringify({ stationId: station.id, mode, savedAt: Date.now() }));
+    if (mode === "location") localStorage.setItem(CONFIG.locationDecisionKey, "granted");
   } catch (_) {}
+}
+
+function readRememberedSelection() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CONFIG.locationStationKey));
+    return typeof saved?.stationId === "string" ? { stationId: saved.stationId, mode: saved.mode === "manual" ? "manual" : "remembered" } : null;
+  } catch (_) { return null; }
 }
 
 function readRememberedStationId() {
@@ -39,7 +46,6 @@ function nearestStation(position, stations) {
   const candidates = stations
     .filter(item => Number.isFinite(item.temperature) && item.coordinates)
     .map(item => ({ ...item, distanceKm: distanceKm(here, item.coordinates) }));
-  const withHumidity = candidates.filter(item => Number.isFinite(item.humidity)).sort((a, b) => a.distanceKm - b.distanceKm);
   const withTemperature = candidates.sort((a, b) => a.distanceKm - b.distanceKm);
-  return withHumidity[0] || withTemperature[0] || null;
+  return withTemperature[0] || null;
 }

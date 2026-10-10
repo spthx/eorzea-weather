@@ -1,4 +1,7 @@
 const CONFIG = Object.freeze({
+  defaultStationId: "44132",
+  typhoonListUrl: "https://www.jma.go.jp/bosai/typhoon/data/targetTc.json",
+  typhoonDataBaseUrl: "https://www.jma.go.jp/bosai/typhoon/data",
   kumagayaStationId: "43056",
   latestTimeUrl: "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt",
   stationTableUrl: "https://www.jma.go.jp/bosai/amedas/const/amedastable.json",

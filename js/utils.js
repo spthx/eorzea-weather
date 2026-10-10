@@ -44,7 +44,8 @@ function formatInteger(value, unit) {
 function windDirectionLabel(value) {
   if (!Number.isFinite(value)) return "観測なし";
   const labels = ["北", "北北東", "北東", "東北東", "東", "東南東", "南東", "南南東", "南", "南南西", "南西", "西南西", "西", "西北西", "北西", "北北西"];
-  return labels[Math.round(value / 2) % 16] || "静穏";
+  if (value === 0) return "静穏";
+  return labels[Math.round(value) % 16] || "観測なし";
 }
 
 function safeText(value) {
