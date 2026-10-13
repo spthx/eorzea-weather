@@ -1,0 +1,9 @@
+{
+  "name": "spthx-eorzea-weather",
+  "account_id": "7edff4aae03adfe05720a7483ae75a85",
+  "compatibility_date": "2026-10-13",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./.deploy/cloudflare"
+  }
+}

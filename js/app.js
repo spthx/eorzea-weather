@@ -121,7 +121,7 @@ UI["share-button"].addEventListener("click", async () => {
   const station = appState.current;
   if (!station) return;
   const text = stationLabel(station) + "は" + station.temperature.toFixed(1) + "℃。今日は「" + station.scene.title + "」。 #エオルゼア天気帳 #FF14";
-  const url = "https://spthx.github.io/eorzea-weather/";
+  const url = location.origin + location.pathname;
   try {
     if (navigator.share) await navigator.share({ title: "エオルゼア天気帳", text, url });
     else await navigator.clipboard.writeText(text + " " + url);

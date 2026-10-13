@@ -2,7 +2,7 @@
 
 現実の空気を、冒険の景色に。気象庁アメダスの観測値を確認し、いまの気温をFFXIVの地域やキャラクターに重ねて楽しむ、非公式・非営利のお天気ツールです。
 
-公開URL: https://spthx.github.io/eorzea-weather/
+公開URL: https://spthx-eorzea-weather.hima0607.workers.dev/
 
 ## 見られるもの
 
@@ -68,3 +68,17 @@
 
 © SQUARE ENIX
 FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.
+
+## Cloudflareへの公開
+
+公開先は Cloudflare Workers Static Assets です。`wrangler.jsonc` に対象アカウントとサイト名を設定しています。
+
+```powershell
+node tests/weather.test.cjs
+node scripts/build-cloudflare.mjs
+npx wrangler deploy
+```
+
+公開用フォルダ `.deploy/cloudflare` には、HTML・画像・CSS・ブラウザ用JavaScriptだけをコピーします。認証情報・Git履歴・テスト・制作ツールは公開しません。元のGitHub Pagesも引き続き利用できます。
+
+ブラウザの保存先はドメインごとに分かれるため、新しいCloudflare URLでは位置情報の許可、保存地点、演出設定を初回に設定してください。
