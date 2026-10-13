@@ -35,6 +35,16 @@ assert.equal(vm.runInContext('createRankings(rankStations).rain[0].id',context),
 assert.equal(vm.runInContext('createRankings(rankStations).wind[0].id',context),'c');
 assert.equal(vm.runInContext('createRankings(rankStations).rain.length',context),2);
 const entry = { tropicalCyclone:'TC2634', typhoonNumber:'2629', issue:'2026-10-11T01:05:00+09:00' };
+let favoriteStorage = null;
+context.document = { getElementById: () => ({addEventListener(){}}) };
+context.localStorage = { getItem: () => favoriteStorage, setItem: (_,value) => {favoriteStorage = value;} };
+vm.runInContext(fs.readFileSync(path.join(root,'js/favorites.js'),'utf8'),context);
+favoriteStorage = JSON.stringify(['44132','44132','bad','14163','43056','47662','99999']);
+assert.equal(vm.runInContext('JSON.stringify(readFavorites())',context),'["44132","14163","43056","47662"]');
+favoriteStorage = 'broken JSON';
+assert.equal(vm.runInContext('readFavorites().length',context),0);
+context.localStorage.setItem = () => {throw new Error('storage disabled');};
+assert.equal(vm.runInContext('writeFavorites(["44132"])',context),false);
 const details = [{part:'title',name:{jp:'テスト台風'},typhoonNumber:'2629',issue:{JST:entry.issue}}, {advancedHours:0,validtime:{JST:'2026-10-11T00:00:00+09:00'},pressure:'950'}, {advancedHours:24,validtime:{JST:'2026-10-12T00:00:00+09:00'}}];
 context.entry = entry; context.details = details;
 assert.equal(vm.runInContext('normalizeTyphoon(entry,details).title', context), '台風第29号（テスト台風）');

@@ -9,6 +9,18 @@ function renderApp() {
   renderCurrent(appState.current, appState.mode, appState.snapshot);
   renderComparison(appState.current, appState.rankings);
   renderRanking(appState.rankingKind, appState.rankings, appState.current.id, appState.snapshot);
+  renderFavorites();
+}
+
+function selectWeatherStation(id) {
+  const station = stationById(id);
+  if (!station || appState.busy) return;
+  appState.current = station;
+  appState.mode = "manual";
+  rememberLocationStation(station, "manual");
+  document.getElementById("station-search").value = "";
+  renderStationOptions(appState.stations);
+  renderApp();
 }
 
 async function loadWeather({ initial = false } = {}) {
@@ -91,13 +103,9 @@ async function loadTyphoons() {
 UI["refresh-button"].addEventListener("click", () => loadWeather());
 UI["location-button"].addEventListener("click", () => locateAndRender());
 UI["station-select"].addEventListener("change", event => {
-  const station = stationById(event.target.value);
-  if (!station) return;
-  appState.current = station;
-  appState.mode = "manual";
-  rememberLocationStation(station, "manual");
-  renderApp();
+  selectWeatherStation(event.target.value);
 });
+document.getElementById("station-search").addEventListener("input", () => renderStationOptions(appState.stations));
 UI["typhoon-refresh"].addEventListener("click", loadTyphoons);
 document.querySelectorAll("[data-ranking]").forEach(button => button.addEventListener("click", () => {
   appState.rankingKind = button.dataset.ranking;

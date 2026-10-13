@@ -22,18 +22,21 @@
   <meta name="twitter:image" content="https://spthx.github.io/eorzea-weather/assets/weather-og.jpg">
   <link rel="canonical" href="https://spthx.github.io/eorzea-weather/">
   <link rel="icon" type="image/png" href="assets/fankit/job-blackmage.png">
-  <link rel="stylesheet" href="css/weather.css?v=1">
+  <link rel="stylesheet" href="css/weather.css?v=2">
+  <link rel="stylesheet" href="css/fankit-motion.css?v=1">
 </head>
 <body data-weather-tone="mild">
+  <div class="world-backdrop" aria-hidden="true"><img id="world-art" src="assets/wallpapers/endwalker-04.jpg" alt=""></div>
   <a class="skip-link" href="#weather">観測結果へ移動</a>
   <header class="masthead shell">
     <a class="brand" href="#weather"><span class="brand-mark" aria-hidden="true">XIV</span><span><strong>エオルゼア天気帳</strong><small>現実の空気を、冒険の景色に。</small></span></a>
-    <div class="eorzea-clock" title="ゲーム内のエオルゼア時間"><span>ET</span><time id="eorzea-time">--:--</time></div>
+    <div class="header-controls"><button id="motion-toggle" class="motion-toggle" type="button" aria-pressed="true">演出を止める</button><div class="eorzea-clock" title="ゲーム内のエオルゼア時間"><span>ET</span><time id="eorzea-time">--:--</time></div></div>
   </header>
-  <nav class="site-nav shell" aria-label="ページ内メニュー"><a href="#weather">いまの天気</a><a href="#typhoon">台風情報</a><a href="#journey">気温で旅する</a><a href="#ranking">全国の観測</a></nav>
+  <nav class="site-nav shell" aria-label="ページ内メニュー"><img class="nav-job" src="assets/fankit/job-blackmage.png" alt="" aria-hidden="true"><a href="#weather">いまの天気</a><a href="#typhoon">台風情報</a><a href="#journey">気温で旅する</a><a href="#ranking">全国の観測</a></nav>
   <main class="shell">
-    <section id="weather" class="weather-hero" aria-labelledby="hero-heading">
+    <section id="weather" class="weather-hero motion-zone" aria-labelledby="hero-heading">
       <div class="hero-art" aria-hidden="true"><img id="scene-wallpaper" src="assets/wallpapers/endwalker-04.jpg" alt=""><div class="atmosphere"></div></div>
+      <div class="hero-showcase" aria-hidden="true"><img id="showcase-art" src="assets/wallpapers/endwalker-04.jpg" alt=""><div class="art-vignette"></div><div class="aether-orbit"><i></i><i></i><i></i></div><div class="aether-particles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="light-trail"></div><span class="showcase-caption">THE WEATHER OF YOUR ADVENTURE</span></div>
       <div class="hero-intro"><h1 id="hero-heading">暑さも、寒さも。<br><span>今日はどんなエオルゼア？</span></h1><p>気象庁の観測値から、いまの空気に似合う景色を選びます。</p></div>
       <div class="location-tools"><button id="location-button" class="button primary" type="button">現在地の天気を見る</button><button id="refresh-button" class="button secondary" type="button">観測値を更新</button></div>
       <p id="location-status" class="location-status" role="status">観測データを読み込んでいます。</p>
@@ -42,10 +45,13 @@
     </section>
     <p id="weather-error" class="notice error" role="alert" hidden></p>
     <section class="location-panel" aria-label="観測地点の選択と位置情報の扱い">
-      <div><label for="station-select">別の観測地点を見る</label><select id="station-select" disabled><option value="">観測地点を読み込み中</option></select></div>
+      <div><label for="station-search">観測地点を探す</label><input id="station-search" type="search" placeholder="地名で検索（例：札幌、富士山）" autocomplete="off"><label class="station-select-label" for="station-select">検索結果から地点を選ぶ</label><select id="station-select" disabled><option value="">観測地点を読み込み中</option></select><small id="station-search-status" role="status"></small></div>
       <details><summary>位置情報は端末内だけで使います</summary><p>緯度・経度は保存せず、最寄りの観測地点を選ぶ処理にだけ使います。端末に保存するのは観測地点IDです。次回はその地点を開くため、移動したときは「現在地を更新」を押してください。</p></details>
     </section>
-    <section id="typhoon" class="section typhoon-section" aria-labelledby="typhoon-heading">
+    <section id="favorites" class="favorites-section motion-zone" aria-labelledby="favorites-heading"><div class="section-heading"><div><h2 id="favorites-heading">気になる街を、旅の仲間に。</h2><p>最大4地点を、この端末に保存して比較できます。</p></div><button id="favorite-add" class="text-button" type="button" disabled>表示中の地点を保存</button></div><p id="favorite-status" class="section-note" role="status"></p><div id="favorite-list" class="favorite-list"><p class="section-note">自宅や旅先を保存すると、最新の観測値を並べて表示します。</p></div></section>
+    <div class="adventure-parade motion-zone" aria-hidden="true"><div class="parade-heading"><span>ADVENTURERS ON THE ROAD</span><b>今日も、どこかで冒険日和。</b></div><div class="parade-window"><div id="parade-track" class="parade-track"></div></div></div>
+    <section id="typhoon" class="section typhoon-section motion-zone" aria-labelledby="typhoon-heading">
+      <div class="chapter-art typhoon-art"><img src="assets/wallpapers/endwalker-01.jpg" alt="" loading="lazy"><div></div><span>旅立つ前に、空の便りを。</span><small>FFXIV FAN KIT © SQUARE ENIX</small></div>
       <div class="section-heading"><div><h2 id="typhoon-heading">台風・熱帯低気圧</h2><p>気象庁の発表を、そのまま確認。</p></div><button id="typhoon-refresh" class="text-button" type="button">再取得</button></div>
       <p id="typhoon-status" class="source-status" role="status">最新の台風情報を確認しています。</p>
       <div id="typhoon-list" class="typhoon-list"></div>
@@ -53,17 +59,18 @@
       <p class="section-note">ここに掲載される台風が、現在地に接近しているとは限りません。地域への影響は公式の進路図や警報・注意報で確認してください。</p>
       <div class="official-links"><a href="https://www.jma.go.jp/bosai/warning/" target="_blank" rel="noopener">警報・注意報 ↗</a><a href="https://www.jma.go.jp/bosai/nowc/" target="_blank" rel="noopener">雨雲の動き ↗</a><a href="https://www.jma.go.jp/bosai/forecast/" target="_blank" rel="noopener">天気予報 ↗</a></div>
     </section>
-    <section id="journey" class="section journey-section" aria-labelledby="journey-heading">
+    <section id="journey" class="section journey-section motion-zone" aria-labelledby="journey-heading">
+      <div class="chapter-art"><img src="assets/wallpapers/heavensward-01.jpg" alt="" loading="lazy"><div></div><span>季節を越えて、冒険の先へ。</span><small>FFXIV FAN KIT © SQUARE ENIX</small></div>
       <div class="section-heading"><div><h2 id="journey-heading">気温で旅する</h2><p>冬の冷気から、真夏の熱気まで。</p></div><span class="small-label">試し表示</span></div>
-      <div class="journey-card"><label for="journey-temperature">気温を動かして景色を試す <output id="journey-value" for="journey-temperature">20.0℃</output></label><input id="journey-temperature" type="range" min="-30" max="45" step="0.5" value="20"><div class="range-labels"><span>−30℃</span><span>0℃</span><span>20℃</span><span>45℃</span></div><div class="journey-presets"><button type="button" data-temperature="-20">厳冬</button><button type="button" data-temperature="8">春秋の朝</button><button type="button" data-temperature="22">穏やかな日</button><button type="button" data-temperature="35">真夏</button></div><div id="journey-result" aria-live="polite"></div></div>
+      <div class="journey-card"><div class="journey-backdrop" aria-hidden="true"><img id="journey-art" src="assets/wallpapers/arr-before-the-fall-fankit.jpg" alt="" loading="lazy"></div><label for="journey-temperature">気温を動かして景色を試す <output id="journey-value" for="journey-temperature">20.0℃</output></label><input id="journey-temperature" type="range" min="-30" max="45" step="0.5" value="20"><div class="range-labels"><span>−30℃</span><span>0℃</span><span>20℃</span><span>45℃</span></div><div class="journey-presets"><button type="button" data-temperature="-20">厳冬</button><button type="button" data-temperature="8">春秋の朝</button><button type="button" data-temperature="22">穏やかな日</button><button type="button" data-temperature="35">真夏</button></div><div id="journey-result" aria-live="polite"></div><img class="journey-mage" src="assets/fankit/job-blackmage.png" alt="" loading="lazy"></div>
       <details class="method"><summary>気温とFF14の対応について</summary><p>実際の観測気温で景色を選びます。氷点下から30.9℃までは地域や氷神シヴァ、31℃以上は炎を扱うキャラクターを0.5℃刻みで表示。41℃以上はゲロルトの特別枠です。気温の境界や表現は本サイトの創作で、FF14に公式の摂氏設定があるという意味ではありません。</p><p>湿度・風・雨・積雪は観測値として別に表示します。降水がないだけで「晴れ」、積雪があるだけで「雪が降っている」とは判定しません。</p></details>
     </section>
-    <section id="comparison" class="section" aria-labelledby="comparison-heading"><div class="section-heading"><div><h2 id="comparison-heading">日本のどこかの、いま</h2><p>同じ観測時刻でも、空気はいろいろ。</p></div></div><div id="comparison-grid" class="comparison-grid"></div></section>
-    <section id="ranking" class="section" aria-labelledby="ranking-heading"><div class="section-heading"><div><h2 id="ranking-heading">全国の観測ランキング</h2><p id="ranking-time">観測時刻を確認中</p></div></div><div class="ranking-tabs" role="group" aria-label="ランキングの種類"><button type="button" data-ranking="temperature" aria-pressed="true">気温が高い</button><button type="button" data-ranking="cold" aria-pressed="false">気温が低い</button><button type="button" data-ranking="rain" aria-pressed="false">1時間の雨量</button><button type="button" data-ranking="wind" aria-pressed="false">風が強い</button></div><p id="ranking-note" class="section-note"></p><ol id="ranking-list" class="ranking-list"></ol></section>
-    <section class="share-panel"><div><h2>今日の空気を、仲間にも。</h2><p id="share-summary">観測値を取得すると結果を共有できます。</p></div><button id="share-button" class="button primary" type="button" disabled>この天気を共有</button><p id="share-feedback" role="status"></p></section>
+    <section id="comparison" class="section motion-zone" aria-labelledby="comparison-heading"><div class="chapter-art chapter-sunset"><img src="assets/wallpapers/shadowbringers-01.jpg" alt="" loading="lazy"><div></div><span>離れた土地にも、同じ空。</span><small>FFXIV FAN KIT © SQUARE ENIX</small></div><div class="section-heading"><div><h2 id="comparison-heading">日本のどこかの、いま</h2><p>同じ観測時刻でも、空気はいろいろ。</p></div></div><div id="comparison-grid" class="comparison-grid"></div></section>
+    <section id="ranking" class="section motion-zone" aria-labelledby="ranking-heading"><div class="chapter-art"><img src="assets/wallpapers/dawntrail-fankit.jpg" alt="" loading="lazy"><div></div><span>まだ見ぬ土地の、今日を知る。</span><small>FFXIV FAN KIT © SQUARE ENIX</small></div><div class="section-heading"><div><h2 id="ranking-heading">全国の観測ランキング</h2><p id="ranking-time">観測時刻を確認中</p></div></div><div class="ranking-tabs" role="group" aria-label="ランキングの種類"><button type="button" data-ranking="temperature" aria-pressed="true">気温が高い</button><button type="button" data-ranking="cold" aria-pressed="false">気温が低い</button><button type="button" data-ranking="rain" aria-pressed="false">1時間の雨量</button><button type="button" data-ranking="wind" aria-pressed="false">風が強い</button></div><p id="ranking-note" class="section-note"></p><ol id="ranking-list" class="ranking-list"></ol></section>
+    <section class="share-panel motion-zone"><div class="share-art" aria-hidden="true"><img src="assets/wallpapers/endwalker-01.jpg" alt="" loading="lazy"></div><div><h2>今日の空気を、仲間にも。</h2><p id="share-summary">観測値を取得すると結果を共有できます。</p></div><button id="share-button" class="button primary" type="button" disabled>この天気を共有</button><p id="share-feedback" role="status"></p><small class="share-art-credit">FFXIV FAN KIT © SQUARE ENIX</small></section>
   </main>
   <footer class="shell"><strong>エオルゼア天気帳</strong><p>非公式・非営利のFFXIVファンサイトです。表示する気温・湿度・風・雨・積雪はアメダス観測地点の値で、端末の位置そのものの値ではありません。FF14の地域・キャラクターへのたとえは娯楽表現です。防災の判断には気象庁や自治体の最新情報をご確認ください。</p><p>「酷暑日級」などの表現は現在の観測気温に付けた演出名です。日最高気温で決まる気象庁の統計区分とは異なります。</p><nav><a href="https://www.jma.go.jp/" target="_blank" rel="noopener">気象庁</a><a href="https://jp.finalfantasyxiv.com/lodestone/special/fankit/" target="_blank" rel="noopener">FFXIVファンキット</a><a href="https://support.jp.square-enix.com/rule.php?id=5381&la=0&tag=authc" target="_blank" rel="noopener">著作物利用条件</a></nav><small>© SQUARE ENIX<br>FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.</small></footer>
   <noscript><p class="notice">観測値の取得にはJavaScriptが必要です。<a href="https://www.jma.go.jp/">気象庁のサイトをご利用ください。</a></p></noscript>
-  <script src="js/config.js?v=10"></script><script src="js/eorzea-lore.js?v=5"></script><script src="js/locations.js?v=5"></script><script src="js/utils.js?v=6"></script><script src="js/amedas.js?v=5"></script><script src="js/geolocation.js?v=7"></script><script src="js/eorzea-climate.js?v=19"></script><script src="js/seasonal.js?v=1"></script><script src="js/rankings.js?v=9"></script><script src="js/typhoon.js?v=1"></script><script src="js/ui.js?v=21"></script><script src="js/app.js?v=12"></script>
+  <script src="js/config.js?v=10"></script><script src="js/eorzea-lore.js?v=5"></script><script src="js/locations.js?v=5"></script><script src="js/utils.js?v=6"></script><script src="js/amedas.js?v=5"></script><script src="js/geolocation.js?v=7"></script><script src="js/eorzea-climate.js?v=19"></script><script src="js/seasonal.js?v=1"></script><script src="js/rankings.js?v=9"></script><script src="js/typhoon.js?v=1"></script><script src="js/ui.js?v=22"></script><script src="js/fankit-motion.js?v=1"></script><script src="js/favorites.js?v=1"></script><script src="js/app.js?v=13"></script>
 </body>
 </html>

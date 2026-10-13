@@ -13,6 +13,7 @@ function setLoading(active) {
   UI["refresh-button"].disabled = active;
   UI["location-button"].disabled = active;
   UI["station-select"].disabled = active;
+  document.getElementById("station-search").disabled = active;
   UI["refresh-button"].textContent = active ? "更新中…" : "観測値を更新";
 }
 
@@ -25,6 +26,8 @@ function renderCurrent(station, mode, snapshot) {
   const scene = station.scene;
   document.body.dataset.weatherTone = scene.tone;
   if (UI["scene-wallpaper"].getAttribute("src") !== scene.wallpaper) UI["scene-wallpaper"].src = scene.wallpaper;
+  document.getElementById("showcase-art").src = scene.wallpaper;
+  document.getElementById("world-art").src = scene.wallpaper;
   const locationText = mode === "live" ? "現在地に最も近い、気温を観測している地点です。"
     : mode === "remembered" ? "この端末に保存した現在地付近の観測地点です。"
     : mode === "manual" ? "選択した観測地点の天気を表示しています。"
@@ -56,14 +59,18 @@ function renderCurrent(station, mode, snapshot) {
 
 function renderStationOptions(stations) {
   const groups = new Map();
-  stations.filter(s => Number.isFinite(s.temperature)).forEach(station => {
+  const query = document.getElementById("station-search").value.trim().toLocaleLowerCase("ja");
+  const matches = stations.filter(s => Number.isFinite(s.temperature) && (!query || [s.stationName, s.prefecture, s.municipality].join(" ").toLocaleLowerCase("ja").includes(query)));
+  matches.forEach(station => {
     const key = station.prefecture || "その他の観測地点";
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(station);
   });
-  UI["station-select"].innerHTML = [...groups].map(([prefecture, list]) =>
+  UI["station-select"].innerHTML = '<option value="">' + (matches.length ? "観測地点を選んでください" : "該当する地点がありません") + '</option>' + [...groups].map(([prefecture, list]) =>
     '<optgroup label="' + safeText(prefecture) + '">' + list.sort((a, b) => a.stationName.localeCompare(b.stationName, "ja")).map(s => '<option value="' + safeText(s.id) + '">' + safeText(s.stationName) + '</option>').join("") + '</optgroup>'
   ).join("");
+  document.getElementById("station-search-status").textContent = matches.length + "地点" + (query ? "が見つかりました。" : "から選べます。");
+  if (appState.current && matches.some(s => s.id === appState.current.id)) UI["station-select"].value = appState.current.id;
 }
 
 function renderComparison(current, rankings) {
@@ -73,7 +80,7 @@ function renderComparison(current, rankings) {
     ["全国で最も気温が低い地点", rankings.cold[0]]
   ];
   UI["comparison-grid"].innerHTML = cards.filter(pair => pair[1]).map(([label, s]) =>
-    '<article class="place-card"><span>' + label + '</span><h3>' + safeText(stationLabel(s)) + '</h3><p class="place-temp">' + s.temperature.toFixed(1) + '<small>℃</small></p><p>' + safeText(s.scene.title) + '</p><p>湿度 ' + formatInteger(s.humidity, "％") + ' ／ 風速 ' + formatValue(s.windSpeed, "m/s") + '</p></article>'
+    '<article class="place-card"><img class="place-art" src="' + safeText(s.scene.wallpaper) + '" alt="" loading="lazy"><span>' + label + '</span><h3>' + safeText(stationLabel(s)) + '</h3><p class="place-temp">' + s.temperature.toFixed(1) + '<small>℃</small></p><p>' + safeText(s.scene.title) + '</p><p>湿度 ' + formatInteger(s.humidity, "％") + ' ／ 風速 ' + formatValue(s.windSpeed, "m/s") + '</p></article>'
   ).join("");
 }
 
@@ -88,14 +95,16 @@ function renderRanking(kind, rankings, selectedId, snapshot) {
   const entries = ranking.slice(0, CONFIG.rankingLimit);
   const current = ranking.find(s => s.id === selectedId);
   if (current && !entries.includes(current)) entries.push(current);
-  UI["ranking-list"].innerHTML = entries.length ? entries.map(s => {
+  UI["ranking-list"].innerHTML = entries.length ? entries.map((s, index) => {
     const rank = ranking.findIndex(item => item[field] === s[field]) + 1;
-    return '<li class="rank-row' + (s.id === selectedId ? ' is-current' : '') + '"><span class="rank-number">' + rank + '</span><div class="rank-place"><strong>' + safeText(stationLabel(s)) + (s.id === selectedId ? '（表示中）' : '') + '</strong><small>' + safeText(s.scene.title) + '</small></div><span class="rank-value">' + s[field].toFixed(1) + '<small>' + units[kind] + '</small></span></li>';
+    return '<li class="rank-row' + (s.id === selectedId ? ' is-current' : '') + '"><span class="rank-number"><img class="rank-job" src="assets/fankit/' + FANKIT_JOBS[index % FANKIT_JOBS.length] + '" alt="" loading="lazy">' + rank + '</span><div class="rank-place"><strong>' + safeText(stationLabel(s)) + (s.id === selectedId ? '（表示中）' : '') + '</strong><small>' + safeText(s.scene.title) + '</small></div><span class="rank-value">' + s[field].toFixed(1) + '<small>' + units[kind] + '</small></span></li>';
   }).join("") : '<li class="notice">この項目の観測値を取得できませんでした。</li>';
 }
 
 function renderJourney(temperature) {
   const scene = describeWeather({ temperature });
+  const journeyArt = document.getElementById("journey-art");
+  if (journeyArt.getAttribute("src") !== scene.wallpaper) journeyArt.src = scene.wallpaper;
   UI["journey-value"].textContent = temperature.toFixed(1) + "℃";
   UI["journey-result"].innerHTML = '<h3>' + safeText(scene.title) + '</h3><p>' + safeText(scene.description) + '</p><p>気温帯：' + safeText(scene.range) + ' ／ これはプレビューです。</p><a href="' + safeText(scene.sourceUrl) + '" target="_blank" rel="noopener">出典：' + safeText(scene.sourceTitle) + ' ↗</a>';
 }
