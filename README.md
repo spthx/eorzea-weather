@@ -15,6 +15,8 @@
 - 観測地点の地名検索と、最大4地点の保存・比較
 - 公式ファンキットの壁紙、12種類のジョブイラスト、スクロール中も残る背景とメニュー
 - 演出の一括停止・再開。画面外・非表示タブでは装飾アニメーションを休止
+- Astryxの検索候補・操作ボタン・切り替え部品を使った「旅の観測拠点」
+- 保存解除の取り消し、文字サイズの変更、表示中だけの10分間隔自動更新
 
 表示値は端末の位置そのものではなく、アメダス観測地点の値です。降水なしを晴天、積雪ありを降雪中とは判定しません。天気予報、進路図、警報・注意報、雨雲の動きは気象庁の公式画面にリンクしています。
 
@@ -74,11 +76,16 @@ FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.
 公開先は Cloudflare Workers Static Assets です。`wrangler.jsonc` に対象アカウントとサイト名を設定しています。
 
 ```powershell
-node tests/weather.test.cjs
-node scripts/build-cloudflare.mjs
+npm ci
+npm test
+npm run build
 npx wrangler deploy
 ```
 
 公開用フォルダ `.deploy/cloudflare` には、HTML・画像・CSS・ブラウザ用JavaScriptだけをコピーします。認証情報・Git履歴・テスト・制作ツールは公開しません。元のGitHub Pagesも引き続き利用できます。
 
 ブラウザの保存先はドメインごとに分かれるため、新しいCloudflare URLでは位置情報の許可、保存地点、演出設定を初回に設定してください。
+
+## 操作UI
+
+React 19とAstryx 0.7.11を操作部分に使用しています。天気の取得・判定は既存のJavaScriptで行い、操作部品はイベントを介して接続します。詳細は [Astryx適用メモ](docs/astryx-integration.md) を参照してください。配布するライブラリのライセンスは assets/ui/vendor-licenses.txt に同梱しています。

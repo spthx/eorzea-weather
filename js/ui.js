@@ -15,11 +15,13 @@ function setLoading(active) {
   UI["station-select"].disabled = active;
   document.getElementById("station-search").disabled = active;
   UI["refresh-button"].textContent = active ? "更新中…" : "観測値を更新";
+  if (typeof publishAstryxState === "function") publishAstryxState();
 }
 
 function showError(message) {
   UI["weather-error"].hidden = !message;
   UI["weather-error"].textContent = message || "";
+  if (typeof publishAstryxState === "function") publishAstryxState();
 }
 
 function renderCurrent(station, mode, snapshot) {

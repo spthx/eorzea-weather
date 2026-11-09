@@ -1,6 +1,7 @@
 import { cp, mkdir, rm, readdir, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import './build-astryx.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.resolve(root, '.deploy', 'cloudflare');

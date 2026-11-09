@@ -10,6 +10,7 @@ function renderApp() {
   renderComparison(appState.current, appState.rankings);
   renderRanking(appState.rankingKind, appState.rankings, appState.current.id, appState.snapshot);
   renderFavorites();
+  if (typeof publishAstryxState === "function") publishAstryxState();
 }
 
 function selectWeatherStation(id) {

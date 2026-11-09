@@ -16,6 +16,7 @@ function applyMotionPreference() {
   motionToggle.textContent = motionPreference.matches ? "演出は停止中" : enabled ? "演出を止める" : "演出を動かす";
   motionToggle.disabled = motionPreference.matches;
   motionToggle.title = motionPreference.matches ? "端末の「視差効果を減らす」設定に合わせて停止しています。" : "装飾アニメーションの切り替え";
+  if (typeof publishAstryxState === "function") publishAstryxState();
 }
 motionToggle.addEventListener("click", () => {
   motionEnabled = !motionEnabled;

@@ -1,0 +1,70 @@
+/* Astryx's semantic theme tokens, adapted to the existing Eorzea artwork. */
+[data-astryx-theme="neutral"]{
+  --font-family-body:'Noto Sans JP',sans-serif;
+  --font-family-heading:'Shippori Mincho',serif;
+  --font-size-base:14px;
+  --color-background-body:#071820;
+  --color-background-surface:#132e3c;
+  --color-background-card:#0d2532;
+  --color-background-popover:#112b39;
+  --color-background-muted:#173847;
+  --color-accent:#ead19c;
+  --color-accent-muted:#594b32;
+  --color-text-primary:#f6f2e8;
+  --color-text-secondary:#bfd1d4;
+  --color-text-accent:#f2d9a5;
+  --color-on-accent:#10232d;
+  --color-border:#55717b;
+  --color-border-emphasized:#91a9ac;
+  --color-icon-primary:#f6e9cb;
+  --color-icon-secondary:#b6ccc9;
+  --color-icon-accent:#ead19c;
+  --radius-container:14px;
+  --radius-element:8px;
+  --radius-inner:5px;
+}
+html[data-astryx-ready=true] .legacy-station-panel,
+html[data-astryx-ready=true] #favorites,
+html[data-astryx-ready=true] .location-tools>#location-button,
+html[data-astryx-ready=true] .location-tools>#refresh-button,
+html[data-astryx-ready=true] #ranking>.ranking-tabs{display:none}
+.eorzea-ui{font-family:var(--font-family-body);color:#f6f2e8;min-width:0;font-size:14px;line-height:1.6}
+.action-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.action-row .astryx-button{min-height:44px}
+#control-center{scroll-margin-top:84px}
+.control-board{position:relative;padding:29px;margin-top:26px;background:linear-gradient(135deg,#143441,#0c2230 75%);border:1px solid #a48c5c;border-radius:14px;box-shadow:0 20px 45px #0004}
+.control-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}
+.control-heading h2{font:700 27px/1.4 'Shippori Mincho',serif;margin:0;color:#f4d99d}
+.control-heading p{margin:8px 0 0;color:#bfd0d0;font-size:12px}
+.control-heading>img{width:66px;height:66px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 9px 8px #0007)}
+.control-current{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;padding:16px 18px;background:#081d29b3;border:1px solid #506a6d;border-radius:9px}
+.control-current span{display:block;font-size:11px;color:#a8c4c7;margin-bottom:4px}.control-current strong{font-size:15px;font-weight:500}.control-current>b{color:#fae4b3;font:700 35px/1.2 'Cormorant Garamond',serif;white-space:nowrap;font-variant-numeric:tabular-nums}
+.control-content{padding-top:26px;min-height:285px}
+.control-board .astryx-typeahead input{font-size:16px!important;min-height:30px}
+.control-board .astryx-typeahead{background:#091f2d;border-color:#839ea3}
+.station-result{display:flex;justify-content:space-between;align-items:center;gap:24px;min-width:0;width:100%;padding:5px 0}
+.station-result strong{display:block;font-size:14px;font-weight:700}.station-result small{display:block;font-size:11px;color:#b6cecd;margin-top:3px}.station-result>b{font-variant-numeric:tabular-nums;font-size:15px;white-space:nowrap;color:#f5dba7}
+.astryx-typeahead-dropdown{z-index:100!important;max-width:calc(100vw - 32px);box-shadow:0 18px 45px #0008!important}
+.save-action{display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-top:20px}.save-action>span{font-size:11px;color:#b5c9cb}
+.search-guidance{display:flex;align-items:center;gap:18px;padding:20px 0 4px;margin-top:16px;border-top:1px solid #4c6970}.search-guidance>img{width:56px;height:56px;object-fit:contain;image-rendering:pixelated}.search-guidance p{font-size:12px;color:#c9dcda;margin:0}
+.astryx-favorites{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.astryx-favorite{position:relative;isolation:isolate;overflow:hidden;padding:21px;border-radius:12px;border:1px solid #738b88;background:#0a202d}
+.saved-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:74% center;opacity:.19;z-index:-2}.astryx-favorite:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#061a2044,#061a20ee);z-index:-1}
+.saved-title{display:flex;align-items:center;gap:10px}.saved-title>img{width:48px;height:48px;object-fit:contain;image-rendering:pixelated}.saved-title h3{font:700 14px/1.6 'Noto Sans JP',sans-serif;margin:0 0 4px}
+.saved-temperature{font:700 47px/1.1 'Cormorant Garamond',serif;font-variant-numeric:tabular-nums;color:#ffe8b3;margin:18px 0 10px}.saved-scene{font:700 18px/1.5 'Shippori Mincho',serif;color:#b4e3d6;margin:0 0 7px}.saved-delta{font-size:11px;color:#c4d6d5;margin:0}
+.astryx-favorite dl{display:flex;gap:25px;margin:16px 0}.astryx-favorite dt{font-size:10px;color:#b0c5c8}.astryx-favorite dd{font-size:14px;margin:4px 0 0}
+.saved-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}.saved-empty{text-align:center;padding:12px 0 24px}.saved-empty>img{width:80px;height:80px;object-fit:contain;image-rendering:pixelated;margin:0 auto 15px}.saved-empty h3{font:700 21px 'Shippori Mincho',serif;color:#f2dba4}.saved-empty p{font-size:12px;color:#bfd0d1;margin-bottom:17px}
+.setting-row{padding:18px 0;border-bottom:1px solid #48636e}.setting-row:first-child{padding-top:0}.setting-row h3{font:700 14px 'Noto Sans JP',sans-serif;margin:0 0 12px}.settings-note{padding-top:18px;font-size:11px;color:#bbd2cf}.settings-note p{margin:4px 0}
+.control-footnote{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;padding:19px 0 0!important;margin-top:18px;border-top:1px solid #48636e;font:400 11px 'Noto Sans JP',sans-serif;color:#b6c9cb}
+.control-footnote>span{color:#c5e8d8}
+.weather-toast{font:500 13px/1.6 'Noto Sans JP',sans-serif;max-width:min(430px,calc(100vw - 48px));padding:3px}.weather-toast p{margin:0 0 9px}.weather-toast>div{display:flex;gap:8px;justify-content:flex-end}
+.astryx-toast{background:#112e3e;color:#f7efdd;border:1px solid #9d9879;color-scheme:dark}
+.astryx-toast .weather-toast{color:#f7efdd}
+.astryx-toast .astryx-button[data-variant=secondary]{background:#294854;color:#fff0cb}
+.astryx-toast .astryx-button[data-variant=ghost]{color:#d9e9e2}
+.ranking-control{padding:4px;background:#0d2836;border:1px solid #667e82;border-radius:10px;margin-bottom:14px}
+.eorzea-ui .astryx-segmented-control{width:100%}.eorzea-ui .astryx-segmented-control-item{min-height:42px}
+html[data-text-size=large] .scene-description,html[data-text-size=large] .section-note,html[data-text-size=large] .condition-line,html[data-text-size=large] .location-status,html[data-text-size=large] .typhoon-card p{font-size:15px;line-height:1.8}
+html[data-text-size=large] .rank-place strong,html[data-text-size=large] .rank-place small{font-size:14px}
+html[data-text-size=large] [data-astryx-theme=neutral]{--font-size-base:16px}
+@media(max-width:700px){.control-board{padding:21px 16px}.control-heading h2{font-size:23px}.control-heading p{font-size:11px;max-width:21em}.control-heading>img{width:49px;height:56px}.control-current{padding:13px 12px}.control-current strong{font-size:12px}.control-current>b{font-size:29px}.control-content{padding-top:22px}.astryx-favorites{grid-template-columns:1fr}.astryx-favorite{padding:19px}.eorzea-ui .astryx-segmented-control-item{font-size:12px}.action-row{gap:6px}.action-row .astryx-button{font-size:12px;min-height:43px}.save-action{gap:10px}.control-footnote{font-size:10px}.search-guidance{gap:13px}.search-guidance p{font-size:11px}.weather-toast{font-size:12px}}
